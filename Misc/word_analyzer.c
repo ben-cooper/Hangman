@@ -5,7 +5,7 @@
  Requires strings to be lower case and contain only
  alphabetic characters */
  
-void print_probabilities(char **str, size_t n)
+void print_probabilities(char *const *str, size_t n)
 {
 	// number of words with each letter
 	int letter_count[26]  = { 0 };

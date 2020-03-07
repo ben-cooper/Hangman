@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 extern void *e_malloc(size_t size);

@@ -6,7 +6,7 @@ void *e_malloc(size_t size)
 	
 	if (!result)
 	{
-		perror("malloc")
+		perror("malloc");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -19,7 +19,7 @@ void *e_calloc(size_t nmemb, size_t size)
 	
 	if (!result)
 	{
-		perror("calloc")
+		perror("calloc");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -32,7 +32,7 @@ void *e_realloc(void *ptr, size_t size)
 	
 	if (!result)
 	{
-		perror("realloc")
+		perror("realloc");
 		exit(EXIT_FAILURE);
 	}
 	

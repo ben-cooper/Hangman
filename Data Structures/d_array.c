@@ -22,14 +22,14 @@ d_array *d_array_create(size_t size)
 }
 
 
-void d_array_insert(d_array *array, char *item)
+void d_array_insert(d_array *array, char const *item)
 {
 	// checking if array is full
 	if (array->elements >= array->capacity)
 	{
 		// increase size
-		array->array = (char **) e_realloc(array->array, array->capacity * 2);
-		array->capacity *= 2;
+		array->array = (char **) e_realloc(array->array, array->capacity * SCALE);
+		array->capacity *= SCALE;
 	}
 	
 	// inserting element

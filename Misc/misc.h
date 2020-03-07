@@ -4,6 +4,6 @@
 #include <ctype.h>
 #include <string.h>
 
-extern void print_probabilities(char **str, size_t n);
+extern void print_probabilities(char *const *str, size_t n);
 extern void shuffle(char **strs, size_t n);
 extern void sanitize(char *str, size_t len);
