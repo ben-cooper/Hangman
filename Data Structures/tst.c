@@ -96,6 +96,16 @@ bool tst_search(tst_node const * tree, char * const str, size_t idx, size_t len)
 	}
 }
 
+void tst_destroy(tst_node *tree)
+{
+	if (tree)
+	{
+		free(tree->left);
+		free(tree->right);
+		free(tree->middle);
+	}
+}
+
 // testing
 int main()
 {

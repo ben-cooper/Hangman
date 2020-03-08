@@ -22,7 +22,7 @@ d_array *d_array_create(size_t size)
 }
 
 
-void d_array_insert(d_array *array, char const *item)
+void d_array_insert(d_array *array, char *item)
 {
 	// checking if array is full
 	if (array->elements >= array->capacity)
@@ -35,4 +35,16 @@ void d_array_insert(d_array *array, char const *item)
 	// inserting element
 	array->array[array->elements] = item;
 	array->elements++;
+}
+
+
+void d_array_destroy(d_array *array)
+{
+	size_t idx;
+	// freeing string
+	for (idx = 0; idx < array->elements; idx++)
+	{
+		free(array->array[idx]);
+	}
+	free(array);
 }
