@@ -9,7 +9,7 @@ d_array *d_array_create(size_t size)
 	d_array *result;
 	
 	result = (d_array *) e_malloc(sizeof(d_array));
-	result->array = (char **) e_malloc(size);
+	result->array = (char **) e_malloc(size * sizeof(char *));
 	result->elements = 0;
 	result->capacity = size;
 	
@@ -23,7 +23,7 @@ void d_array_insert(d_array *array, char *item)
 	if (array->elements >= array->capacity)
 	{
 		// increase size
-		array->array = (char **) e_realloc(array->array, array->capacity * SCALE);
+		array->array = (char **) e_realloc(array->array, array->elements * sizeof(char *) * SCALE);
 		array->capacity *= SCALE;
 	}
 	
@@ -35,11 +35,6 @@ void d_array_insert(d_array *array, char *item)
 
 void d_array_destroy(d_array *array)
 {
-	size_t idx;
-	// freeing string
-	for (idx = 0; idx < array->elements; idx++)
-	{
-		free(array->array[idx]);
-	}
+	free(array->array);
 	free(array);
 }

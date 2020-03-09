@@ -85,7 +85,7 @@ bool tst_search(tst_node const * tree, char * const str, size_t idx, size_t len)
 		return tree->right && tst_search(tree->right, str, idx, len);
 	} else
 	{
-		return ((len - idx) == 1) || tst_search(tree->middle, str, idx + 1, len);
+		return (((len - idx) == 1) && tree->word) || tst_search(tree->middle, str, idx + 1, len);
 	}
 }
 
@@ -93,8 +93,10 @@ void tst_destroy(tst_node *tree)
 {
 	if (tree)
 	{
-		free(tree->left);
-		free(tree->right);
-		free(tree->middle);
+		tst_destroy(tree->left);
+		tst_destroy(tree->right);
+		tst_destroy(tree->middle);
+		free(tree->word);
+		free(tree);
 	}
 }

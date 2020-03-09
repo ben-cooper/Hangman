@@ -30,7 +30,7 @@ void *e_calloc(size_t nmemb, size_t size)
 
 void *e_realloc(void *ptr, size_t size)
 {
-	void *result = e_realloc(ptr, size);
+	void *result = realloc(ptr, size);
 	
 	if (!result)
 	{
