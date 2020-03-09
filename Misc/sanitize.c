@@ -12,24 +12,21 @@ void sanitize(char *str, size_t len)
 	char buffer[MAX_STRING_SIZE];
 	size_t i;
 	size_t current = 0;
-	
+
 	// checking string size
-	if (len > MAX_STRING_SIZE)
-	{
+	if (len > MAX_STRING_SIZE) {
 		fprintf(stderr, "String exceeded maximum size!\n");
 		exit(EXIT_FAILURE);
 	}
-	
-	for (i = 0; i < len; i++)
-	{
-		if (isalpha(str[i]))
-		{
+
+	for (i = 0; i < len; i++) {
+		if (isalpha(str[i])) {
 			buffer[current] = tolower(str[i]);
 			current++;
 		}
 	}
-	
+
 	buffer[current] = '\0';
-	
+
 	strncpy(str, buffer, len);
 }
