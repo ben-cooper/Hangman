@@ -11,51 +11,107 @@
 #define ARRAY_START_SIZE 100
 
 /* finds all word in the tst matching the strring "hangman" while
-excluding wrong letter (hangman ex: "b_n_n_" */
+excluding wrong letter (hangman ex: "b_n_n_") into given pipe */
 void hangman_words(tst_node *root, char const *hangman, size_t idx,
-			size_t len, char const *wrong, d_array * output)
+			size_t len, char const *wrong, int fd)
 {
 	if (root) {
 		
 		// recursing
 		if (hangman[idx] == '_') {
-			hangman_words(root->left, hangman, idx, len, wrong, output);
-			hangman_words(root->right, hangman, idx, len, wrong, output);
+			hangman_words(root->left, hangman, idx, len, wrong, fd);
+			hangman_words(root->right, hangman, idx, len, wrong, fd);
 			
 			// if last character, check for match
 			if ((len - idx) == 1) {
 				// check if part of wrong letter
 				if ((!index(wrong, root->chr)) && (root->word)) {
 					// match found
-					d_array_insert(output, root->word);
+					write(fd, &(root->word), sizeof(root->word));
 				}
 			
 			} else {
 				// go to middle subtree
 				if (!index(wrong, root->chr)) {
-					hangman_words(root->middle, hangman, idx + 1, len, wrong, output);
+					hangman_words(root->middle, hangman, idx + 1, len, wrong, fd);
 				}
 			}
 		} else if (hangman[idx] < root->chr) {
-			hangman_words(root->left, hangman, idx, len, wrong, output);
+			hangman_words(root->left, hangman, idx, len, wrong, fd);
 		} else if (hangman[idx] > root->chr) {
-			hangman_words(root->right, hangman, idx, len, wrong, output);
+			hangman_words(root->right, hangman, idx, len, wrong, fd);
 		} else {
 			// character matches
 			
 			if ((len - idx) == 1) {
 				if (root->word) {
 					// macth found
-					d_array_insert(output, root->word);
+					write(fd, &(root->word), sizeof(root->word));
 				}
 			} else {
 				// middle subtree
-				hangman_words(root->middle, hangman, idx + 1, len, wrong, output);
+				hangman_words(root->middle, hangman, idx + 1, len, wrong, fd);
 			}
 		}
 	}
 }
 
+void fork_search(tst_node ** roots, char const *hangman, size_t len,
+			char const * wrong, size_t workers)
+{
+	int fd[2];
+	size_t i;
+	pid_t child;
+	char *word = NULL;
+	d_array *found_words = d_array_create(ARRAY_START_SIZE);
+	
+	if (pipe(fd) == -1)
+	{
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	}
+	
+	// creating children
+	for (i = 0; i < workers; i++) {
+		switch (child = fork()) {
+			
+			// failed
+			case -1 :
+				perror("fork");
+				exit(EXIT_FAILURE);
+				break;
+			
+			// child
+			case  0 :
+				close(fd[0]);
+				hangman_words(roots[i], hangman, 0, len, wrong, fd[1]);
+				// sending NULL to signal exit
+				write(fd[1], &word, sizeof(word));
+				close(fd[1]);
+				printf("Child %zu finished!\n", i);
+				exit(EXIT_SUCCESS);
+				break;
+				
+			// parent
+			default :
+				break;
+		}
+	}
+	
+	// parent reads until all children have sent NULL
+	i = 0;
+	while (i < workers) {
+		read(fd[0], &word, sizeof(word));
+		if (!word) {
+			i++;
+		} else {
+			d_array_insert(found_words, word);
+		}
+	}
+	
+	d_array_print(found_words);
+	print_probabilities(found_words->array, found_words->elements);
+}
 
 /* returns array of ternary search trees based on the number of
 worker threads */
@@ -121,25 +177,25 @@ int main(int argc, char **argv)
 			perror("fopen");
 			fprintf(stderr, "Unix word list not found.  Please "
 				"give path to word list as argument.\n");
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 	} else if (argc == 3) {
 		// using word list specified
 		if (!(word_list = fopen(argv[2], "r"))) {
 			perror("fopen");
-			exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 	} else {
 		fprintf(stderr,
 			"usage: %s workers [path_to_word_list]\n",
 			argv[0]);
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	// getting number of worker threads
 	if (!(error = sscanf(argv[1], "%zu", &workers))) {
 		perror("scanf");
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 	// initialization
 	roots = initialize_words(word_list, workers);
@@ -147,8 +203,7 @@ int main(int argc, char **argv)
 
 	// user input loop
 		// quick test
-		d_array *test_output = d_array_create(100);
-		hangman_words(roots[0], "b_n_n_", 0, 6, "fde", test_output);
+		fork_search(roots, "b_n_n_", 6, "fde", workers);
 
 	// freeing memory
 	for (idx = 0; idx < workers; idx++) {

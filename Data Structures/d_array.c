@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include "common.h"
 #include "d_array.h"
@@ -36,4 +37,13 @@ void d_array_destroy(d_array * array)
 {
 	free(array->array);
 	free(array);
+}
+
+void d_array_print(d_array * array)
+{
+	size_t idx;
+	
+	for (idx = 0; idx < array->elements; idx++) {
+		printf("%s\n", array->array[idx]);
+	}
 }
