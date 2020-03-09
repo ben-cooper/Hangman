@@ -1,14 +1,7 @@
-#include "common.h"
+#include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
-
-typedef struct tst_node {
-	char *word;
-	char chr;
-	struct tst_node *left;
-	struct tst_node *right;
-	struct tst_node *middle;
-} tst_node;
+#include "common.h"
+#include "tst.h"
 
 tst_node *tst_create(char * const str, size_t idx, size_t len)
 {
@@ -104,27 +97,4 @@ void tst_destroy(tst_node *tree)
 		free(tree->right);
 		free(tree->middle);
 	}
-}
-
-// testing
-int main()
-{
-	char test1[] = "ben";
-	char test2[] = "blade";
-	char test3[] = "nick";
-	char test4[] = "wyatt";
-	char test5[] = "vlad";
-	
-	tst_node *root = tst_create(test1, 0, strlen(test1));
-	tst_insert(root, test2, 0, strlen(test2));
-	tst_insert(root, test3, 0, strlen(test3));
-	tst_insert(root, test4, 0, strlen(test4));
-	tst_insert(root, test5, 0, strlen(test5));
-	
-	printf("ben? %d\n", tst_search(root, "ben", 0, 3));
-	printf("blade? %d\n", tst_search(root, "blade", 0, 5));
-	printf("nick? %d\n", tst_search(root, "nick", 0, 4));
-	printf("linux? %d\n", tst_search(root, "linux", 0, 5));
-	
-	return 0;
 }

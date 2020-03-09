@@ -1,13 +1,8 @@
+#include <stdlib.h>
 #include "common.h"
+#include "d_array.h"
 
 #define SCALE 2
-
-typedef struct {
-	char **array;
-	size_t elements;
-	size_t capacity;
-} d_array;
-
 
 d_array *d_array_create(size_t size)
 {

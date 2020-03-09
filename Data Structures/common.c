@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "common.h"
 
 void *e_malloc(size_t size)

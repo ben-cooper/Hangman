@@ -1,9 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <ctype.h>
-#include <string.h>
+#ifndef MISC_H
+#define MISC_H
 
-extern void print_probabilities(char *const *str, size_t n);
-extern void shuffle(char **strs, size_t n);
-extern void sanitize(char *str, size_t len);
+void print_probabilities(char *const *str, size_t n);
+void shuffle(char **strs, size_t n);
+void sanitize(char *str, size_t len);
+
+#endif

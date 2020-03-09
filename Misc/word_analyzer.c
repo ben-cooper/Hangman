@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <string.h>
 #include "misc.h"
 
 /* print probabilities of each lettter occuring in a random

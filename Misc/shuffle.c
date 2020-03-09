@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <time.h>
 #include "misc.h"
 
 // shuffles an array of strings using the fisher-yates shuffle
