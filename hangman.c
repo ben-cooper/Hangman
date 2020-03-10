@@ -134,7 +134,7 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 	while (fgets(str_buffer, MAX_STRING_SIZE, word_list)) {
 		// coping and sanitizing
 		len = strlen(str_buffer);
-		str = e_malloc((len + 1) * sizeof(char));
+		str = (char *) e_malloc((len + 1) * sizeof(char));
 		strcpy(str, str_buffer);
 		sanitize(str, len, "");
 
@@ -146,7 +146,7 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 	shuffle(array->array, array->elements);
 
 	// initializing ternary search trees
-	roots = e_malloc(workers * sizeof(tst_node *));
+	roots = (tst_node **) e_malloc(workers * sizeof(tst_node *));
 
 	for (idx = 0; idx < workers; idx++) {
 		str = array->array[idx];

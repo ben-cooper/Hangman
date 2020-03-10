@@ -5,7 +5,7 @@
 
 tst_node *tst_create(char *const str, size_t idx, size_t len)
 {
-	tst_node *result = e_malloc(sizeof(tst_node));
+	tst_node *result = (tst_node *) e_malloc(sizeof(tst_node));
 
 	result->left = NULL;
 	result->right = NULL;

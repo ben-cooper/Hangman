@@ -1,7 +1,9 @@
 #ifndef TST_H
 #define TST_H
 
+#ifndef __cplusplus
 typedef enum { false, true } bool;
+#endif
 
 typedef struct tst_node {
 	char *word;
