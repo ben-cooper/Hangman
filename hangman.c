@@ -1,11 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
 #include <string.h>
+#include <strings.h>
 #include "Misc/misc.h"
-#include "Data Structures/common.h"
-#include "Data Structures/d_array.h"
-#include "Data Structures/tst.h"
+#include "Structures/common.h"
+#include "Structures/d_array.h"
+#include "Structures/tst.h"
 
 #define MAX_STRING_SIZE 100
 #define ARRAY_START_SIZE 100
@@ -25,7 +27,9 @@ void hangman_words(tst_node *root, char const *hangman, size_t idx,
 			// if last character, check for match
 			if ((len - idx) == 1) {
 				// check if part of wrong letter
-				if ((!index(wrong, root->chr)) && (root->word)) {
+				if ((!index(wrong, root->chr)) &&
+					(!index(hangman, root->chr)) &&
+					(root->word)) {
 					// match found
 					write(fd, &(root->word), sizeof(root->word));
 				}
