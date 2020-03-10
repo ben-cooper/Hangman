@@ -7,7 +7,7 @@
 #define MAX_STRING_SIZE 100
 
 // convert strings to lowercase and remove non alphabetic characters
-void sanitize(char *str, size_t len)
+void sanitize(char *str, size_t len, char const *exceptions)
 {
 	char buffer[MAX_STRING_SIZE];
 	size_t i;
@@ -20,7 +20,7 @@ void sanitize(char *str, size_t len)
 	}
 
 	for (i = 0; i < len; i++) {
-		if (isalpha(str[i])) {
+		if ((isalpha(str[i])) || (index(exceptions, str[i]))){
 			buffer[current] = tolower(str[i]);
 			current++;
 		}

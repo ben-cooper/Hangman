@@ -88,7 +88,6 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 				// sending NULL to signal exit
 				write(fd[1], &word, sizeof(word));
 				close(fd[1]);
-				printf("Child %zu finished!\n", i);
 				exit(EXIT_SUCCESS);
 				break;
 				
@@ -111,6 +110,9 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 	
 	d_array_print(found_words);
 	print_probabilities(found_words->array, found_words->elements);
+	
+	// freeing memory
+	d_array_destroy(found_words);
 }
 
 /* returns array of ternary search trees based on the number of
@@ -130,7 +132,7 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 		len = strlen(str_buffer);
 		str = e_malloc((len + 1) * sizeof(char));
 		strcpy(str, str_buffer);
-		sanitize(str, len);
+		sanitize(str, len, "");
 
 		// adding to array
 		d_array_insert(array, str);
@@ -167,8 +169,10 @@ int main(int argc, char **argv)
 	FILE *word_list;
 	size_t workers;
 	size_t idx;
-	int error;
+	int bytes;
 	tst_node **roots;
+	char hangman[MAX_STRING_SIZE];
+	char wrong[MAX_STRING_SIZE];
 
 	// checking arguments
 	if (argc == 2) {
@@ -193,8 +197,9 @@ int main(int argc, char **argv)
 	}
 
 	// getting number of worker threads
-	if (!(error = sscanf(argv[1], "%zu", &workers))) {
-		perror("scanf");
+	if (!(bytes = sscanf(argv[1], "%zu", &workers)) ||
+		!workers) {
+		fprintf(stderr, "Invalid number of worker threads.\n");
 		return EXIT_FAILURE;
 	}
 	// initialization
@@ -202,12 +207,27 @@ int main(int argc, char **argv)
 	fclose(word_list);
 
 	// user input loop
-		// quick test
-		fork_search(roots, "b_n_n_", 6, "fde", workers);
+	while (1) {
+		
+		printf("Hangman string: ");
+		if (!fgets(hangman, MAX_STRING_SIZE, stdin)) break;
+		printf("Wrong letters: ");
+		if (!fgets(wrong, MAX_STRING_SIZE, stdin)) break;
+		
+		sanitize(hangman, strlen(hangman), "_");
+		sanitize(wrong, strlen(wrong), "");
+		
+		fork_search(roots, hangman, strlen(hangman), wrong, workers);
+		printf("\n\n");
+	}
+	
+	printf("\n");
 
 	// freeing memory
 	for (idx = 0; idx < workers; idx++) {
 		tst_destroy(roots[idx]);
 	}
 	free(roots);
+	
+	return EXIT_SUCCESS;
 }
