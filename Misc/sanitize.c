@@ -5,29 +5,24 @@
 #include <ctype.h>
 #include "misc.h"
 
-#define MAX_STRING_SIZE 100
 
-// convert strings to lowercase and remove non alphabetic characters
-void sanitize(char *str, size_t len, char const *exceptions)
+/* return false if string contains non alphabetical characters
+otherwise convert characters to lowercase and return true */
+int sanitize(char *str, size_t len, char const *exceptions)
 {
-	char buffer[MAX_STRING_SIZE];
 	size_t i;
-	size_t current = 0;
-
-	// checking string size
-	if (len > MAX_STRING_SIZE) {
-		fprintf(stderr, "String exceeded maximum size!\n");
-		exit(EXIT_FAILURE);
-	}
 
 	for (i = 0; i < len; i++) {
-		if ((isalpha(str[i])) || (index(exceptions, str[i]))){
-			buffer[current] = tolower(str[i]);
-			current++;
-		}
+
+		// removing new line
+		if (str[i] == '\n') {
+			str[i] = '\0';
+		} else if (!((isalpha(str[i]) && islower(str[i])) ||
+				(index(exceptions, str[i])))) {
+				// illegal character found
+				return 0;
+		} 
 	}
 
-	buffer[current] = '\0';
-
-	strncpy(str, buffer, len);
+	return 1;
 }

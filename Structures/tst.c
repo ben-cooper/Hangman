@@ -55,10 +55,11 @@ void tst_insert(tst_node * tree, char *const str, size_t idx, size_t len)
 	}
 }
 
-bool tst_search(tst_node const *tree, char *const str, size_t idx, size_t len)
+// return 0 if not in the tree, otherwise 1
+int tst_search(tst_node const *tree, char *const str, size_t idx, size_t len)
 {
 	if (!tree) {
-		return false;
+		return 0;
 	}
 
 	if (str[idx] < tree->chr) {

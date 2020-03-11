@@ -113,7 +113,7 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 	}
 	
 	d_array_print(found_words);
-	print_probabilities(found_words->array, found_words->elements);
+	print_probabilities(found_words->array, found_words->elements, hangman);
 	
 	// freeing memory
 	d_array_destroy(found_words);
@@ -129,6 +129,7 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 	d_array *array = d_array_create(ARRAY_START_SIZE);
 	tst_node **roots;
 	size_t idx;
+	int clean;
 
 	// reading file
 	while (fgets(str_buffer, MAX_STRING_SIZE, word_list)) {
@@ -136,10 +137,11 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 		len = strlen(str_buffer);
 		str = (char *) e_malloc((len + 1) * sizeof(char));
 		strcpy(str, str_buffer);
-		sanitize(str, len, "");
 
-		// adding to array
-		d_array_insert(array, str);
+		if ((clean = sanitize(str, len, ""))) {
+			// adding to array
+			d_array_insert(array, str);
+		}
 	}
 
 	// shuffling to avoid degenerate trees
