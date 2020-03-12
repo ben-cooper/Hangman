@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <string.h>
 #include <strings.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #include "Misc/misc.h"
 #include "Structures/common.h"
 #include "Structures/d_array.h"
@@ -133,7 +135,7 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 
 	// reading file
 	while (fgets(str_buffer, MAX_STRING_SIZE, word_list)) {
-		// coping and sanitizing
+		// copying and sanitizing
 		len = strlen(str_buffer);
 		str = (char *) e_malloc((len + 1) * sizeof(char));
 		strcpy(str, str_buffer);
@@ -141,6 +143,8 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 		if ((clean = sanitize(str, len, ""))) {
 			// adding to array
 			d_array_insert(array, str);
+		} else {
+			free(str);
 		}
 	}
 
@@ -177,8 +181,8 @@ int main(int argc, char **argv)
 	size_t idx;
 	int bytes;
 	tst_node **roots;
-	char hangman[MAX_STRING_SIZE];
-	char wrong[MAX_STRING_SIZE];
+	char *hangman;
+	char *wrong;
 
 	// checking arguments
 	if (argc == 2) {
@@ -215,15 +219,22 @@ int main(int argc, char **argv)
 	// user input loop
 	while (1) {
 		
-		printf("Hangman string: ");
-		if (!fgets(hangman, MAX_STRING_SIZE, stdin)) break;
-		printf("Wrong letters: ");
-		if (!fgets(wrong, MAX_STRING_SIZE, stdin)) break;
+		hangman = readline("Hangman string: ");
+		if (!hangman) break;
+		wrong = readline("Wrong letters: ");
+		if (!wrong) break;
+			
+		if ((sanitize(hangman, strlen(hangman), "_")) &&
+			(sanitize(wrong, strlen(wrong), ""))) {
+			fork_search(roots, hangman, strlen(hangman), wrong, workers);
+		} else {
+			fprintf(stderr, "Invalid input!\n");
+		}
 		
-		sanitize(hangman, strlen(hangman), "_");
-		sanitize(wrong, strlen(wrong), "");
-		
-		fork_search(roots, hangman, strlen(hangman), wrong, workers);
+		add_history(hangman);
+		add_history(wrong);
+		free(hangman);
+		free(wrong);
 		printf("\n\n");
 	}
 	
@@ -234,6 +245,7 @@ int main(int argc, char **argv)
 		tst_destroy(roots[idx]);
 	}
 	free(roots);
+	rl_clear_history();
 	
 	return EXIT_SUCCESS;
 }
