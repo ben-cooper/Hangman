@@ -84,7 +84,8 @@ void print_probabilities(char *const *str, size_t n, char const *exceptions)
 
 	/*  outputting results */
 	for (idx = 0; idx < 26; idx++) {
-		if (!index(exceptions, letters[idx])) {
+		/* letters are not in exceptions and the probability is not 0 */
+		if ((!index(exceptions, letters[idx])) && (probabilities[idx])) {
 			printf("Letter: %c\tChance: %.2f%%\n", letters[idx],
 			       probabilities[idx]);
 		}
