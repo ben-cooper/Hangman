@@ -116,7 +116,9 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 		}
 	}
 
+	printf("\nPossible words:\n");
 	d_array_print(found_words);
+	printf("\n\nLetter Probabilities:\n");
 	print_probabilities(found_words->array, found_words->elements, hangman);
 
 	/* freeing memory */

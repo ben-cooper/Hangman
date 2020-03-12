@@ -1,9 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "common.h"
 #include "d_array.h"
 
 #define SCALE 2
+#define PRINT_LINE_LIMIT 80
+#define PRINT_ITEM_LIMIT 200
+#define DELIM "  "
+#define DELIM_LENGTH 2
 
 d_array *d_array_create(size_t size)
 {
@@ -42,8 +47,22 @@ void d_array_destroy(d_array * array)
 void d_array_print(d_array * array)
 {
 	size_t idx;
+	size_t line_chars = 0;
 
 	for (idx = 0; idx < array->elements; idx++) {
-		printf("%s\n", array->array[idx]);
+		
+		line_chars += strlen(array->array[idx]) + DELIM_LENGTH;
+		
+		if (line_chars > PRINT_LINE_LIMIT) {
+			printf("\n");
+			line_chars = strlen(array->array[idx]) + DELIM_LENGTH;
+		}
+
+		printf("%s" DELIM, array->array[idx]);
+		
+		if (idx > PRINT_ITEM_LIMIT) {
+			printf("\nPrint Limit reached!");
+			break;
+		}
 	}
 }
