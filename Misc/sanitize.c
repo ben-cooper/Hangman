@@ -7,9 +7,14 @@
 
 /* return false if string contains non alphabetical characters
 otherwise convert characters to lowercase and return true */
-int sanitize(char *str, size_t len, char const *exceptions)
+int sanitize(char *str, char const *exceptions)
 {
 	size_t i;
+	size_t len = strlen(str);
+	
+	/* empty strings are not valid */
+	if (!len)
+		return 0;
 
 	for (i = 0; i < len; i++) {
 
@@ -22,6 +27,11 @@ int sanitize(char *str, size_t len, char const *exceptions)
 			return 0;
 		}
 	}
+	
+	/* check if string is now empty */
+	len = strlen(str);
+	if (!len)
+		return 0;
 
 	return 1;
 }

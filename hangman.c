@@ -140,16 +140,21 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 	/* reading file */
 	while (fgets(str_buffer, MAX_STRING_SIZE, word_list)) {
 		/* copying and sanitizing */
-		len = strlen(str_buffer);
-		str = (char *)e_malloc((len + 1) * sizeof(char));
+		str = (char *) e_malloc(MAX_STRING_SIZE * sizeof(char));
 		strcpy(str, str_buffer);
 
-		if ((clean = sanitize(str, len, ""))) {
+		if ((clean = sanitize(str, ""))) {
 			/* adding to array */
 			d_array_insert(array, str);
 		} else {
 			free(str);
 		}
+	}
+	
+	/* checking if there are enough words for the number of threads */
+	if (array->elements < workers) {
+		fprintf(stderr, "Not enough words for number of threads.\n");
+		exit(EXIT_FAILURE);
 	}
 
 	/* shuffling to avoid degenerate trees */
@@ -228,8 +233,7 @@ int main(int argc, char **argv)
 		if (!wrong)
 			break;
 
-		if ((sanitize(hangman, strlen(hangman), "_")) &&
-		    (sanitize(wrong, strlen(wrong), ""))) {
+		if ((sanitize(hangman, "_")) && (sanitize(wrong, ""))) {
 			/* input is clean */
 			fork_search(roots, hangman, strlen(hangman), wrong, workers);
 		} else {
