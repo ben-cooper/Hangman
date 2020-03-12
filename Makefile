@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -Werror --std=c99
+CFLAGS := -Wall -Wextra -Werror --std=c89
 LFLAGS := -lreadline
 STRUCTURES := Structures/d_array.o Structures/tst.o Structures/common.o
 MISC := Misc/sanitize.o Misc/shuffle.o Misc/word_analyzer.o

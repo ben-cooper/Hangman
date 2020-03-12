@@ -19,16 +19,16 @@ d_array *d_array_create(size_t size)
 
 void d_array_insert(d_array * array, char *item)
 {
-	// checking if array is full
+	/* checking if array is full */
 	if (array->elements >= array->capacity) {
-		// increase size
+		/* increase size */
 		array->array =
 		    (char **)e_realloc(array->array,
 				       array->elements * sizeof(char *) *
 				       SCALE);
 		array->capacity *= SCALE;
 	}
-	// inserting element
+	/* inserting element */
 	array->array[array->elements] = item;
 	array->elements++;
 }
@@ -42,7 +42,7 @@ void d_array_destroy(d_array * array)
 void d_array_print(d_array * array)
 {
 	size_t idx;
-	
+
 	for (idx = 0; idx < array->elements; idx++) {
 		printf("%s\n", array->array[idx]);
 	}

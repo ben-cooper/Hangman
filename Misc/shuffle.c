@@ -2,7 +2,7 @@
 #include <time.h>
 #include "misc.h"
 
-// shuffles an array of strings using the fisher-yates shuffle
+/* shuffles an array of strings using the fisher-yates shuffle */
 void shuffle(char **strs, size_t n)
 {
 	size_t i;
