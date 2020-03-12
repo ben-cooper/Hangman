@@ -1,6 +1,6 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror --std=c89
-LFLAGS := -lreadline
+LIBS := -lreadline
 STRUCTURES := Structures/d_array.o Structures/tst.o Structures/common.o
 MISC := Misc/sanitize.o Misc/shuffle.o Misc/word_analyzer.o
 MAIN := ./hangman.o
@@ -15,7 +15,7 @@ debug: CFLAGS += -g
 debug: hangman
 
 hangman: $(OBJECTS)
-	$(CC) $(LFLAGS) $^ -o $@
+	$(CC) $(LIBS) $^ -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
