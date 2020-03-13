@@ -4,12 +4,6 @@
 #include "common.h"
 #include "d_array.h"
 
-#define SCALE 2
-#define PRINT_LINE_LIMIT 80
-#define PRINT_ITEM_LIMIT 200
-#define DELIM "  "
-#define DELIM_LENGTH 2
-
 d_array *d_array_create(size_t size)
 {
 	d_array *result;
