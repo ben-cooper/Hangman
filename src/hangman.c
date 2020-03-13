@@ -224,14 +224,8 @@ int main(int argc, char **argv)
 	fclose(word_list);
 
 	/* user input loop */
-	while (1) {
-
-		hangman = readline("Hangman string: ");
-		if (!hangman)
-			break;
-		wrong = readline("Wrong letters: ");
-		if (!wrong)
-			break;
+	while ((hangman = readline("Hangman string: ")) &&
+		  (wrong = readline("Wrong letters: "))) {
 
 		if ((sanitize(hangman, "_")) && (sanitize(wrong, ""))) {
 			/* input is clean */
