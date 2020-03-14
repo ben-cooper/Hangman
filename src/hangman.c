@@ -39,7 +39,8 @@ void hangman_words(tst_node * root, char const *hangman, size_t idx,
 
 			} else {
 				/* go to middle subtree */
-				if (!index(wrong, root->chr)) {
+				if ((!index(wrong, root->chr)) &&
+					(!index(hangman, root->chr))) {
 					hangman_words(root->middle, hangman,
 						      idx + 1, len, wrong, fd);
 				}
@@ -227,7 +228,7 @@ int main(int argc, char **argv)
 	while ((hangman = readline("Hangman string: ")) &&
 		  (wrong = readline("Wrong letters: "))) {
 
-		if ((sanitize(hangman, "_")) && (sanitize(wrong, ""))) {
+		if (sanitize(hangman, "_")) {
 			/* input is clean */
 			fork_search(roots, hangman, strlen(hangman), wrong, workers);
 		} else {
