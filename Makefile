@@ -24,8 +24,8 @@ fast: default
 debug: CFLAGS += -g
 debug: default
 
-small: CFLAGS += -Os
-small: LFLAGS += -fdata-sections -ffunction-sections -s -Wl,--gc-sections
+small: CFLAGS += -Os -fdata-sections -ffunction-sections
+small: LFLAGS += -Wl,--gc-sections -s
 small: default
 
 $(BINARY): $(OBJECTS)
