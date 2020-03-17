@@ -32,13 +32,13 @@ $(BINARY): $(OBJECTS)
 	mkdir -p $(@D)
 	$(CC) $(LFLAGS) $^ -o $@
 
-obj/Structures/%.o: src/Structures/%.c
+obj/Structures/%.o: src/Structures/%.c src/Structures/%.h
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $^ -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
-obj/Misc/%.o: src/Misc/%.c
+obj/Misc/%.o: src/Misc/%.c src/Misc/misc.h
 	mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $^ -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 obj/%.o: src/%.c
 	mkdir -p $(@D)
