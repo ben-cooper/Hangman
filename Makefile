@@ -14,7 +14,7 @@ OBJECTS := $(STRUCTURES) $(MISC) $(MAIN)
 
 BINARY := bin/hangman
 
-.PHONY: clean
+.PHONY: default fast debug small clean
 
 default: $(BINARY)
 
