@@ -1,50 +1,48 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror --std=c89
-LIBS := -lreadline
+LFLAGS := -lreadline
 
-OBJECTS := common.o d_array.o tst.o sanitize.o shuffle.o word_analyzer.o hangman.o
-OBJECTS := $(addprefix obj/, $(OBJECTS))
+STRUCTURES := d_array.o tst.o common.o
+STRUCTURES := $(addprefix obj/Structures/, $(STRUCTURES))
+
+MISC := sanitize.o shuffle.o word_analyzer.o
+MISC := $(addprefix obj/Misc/, $(MISC))
+
+MAIN := obj/hangman.o
+
+OBJECTS := $(STRUCTURES) $(MISC) $(MAIN)
+
 BINARY := bin/hangman
 
 .PHONY: clean
 
-default: obj bin $(BINARY)
+default: $(BINARY)
 
-fast: CFLAGS += -O3
+fast: CFLAGS += -O2
 fast: default
 
 debug: CFLAGS += -g
 debug: default
 
-obj:
-	mkdir $@
-
-bin:
-	mkdir $@
+small: CFLAGS += -Os
+small: LFLAGS += -fdata-sections -ffunction-sections -s -Wl,--gc-sections
+small: default
 
 $(BINARY): $(OBJECTS)
-	$(CC) $(LIBS) $^ -o $@
+	mkdir -p $(@D)
+	$(CC) $(LFLAGS) $^ -o $@
 
-obj/common.o: src/Structures/common.c
+obj/Structures/%.o: src/Structures/%.c
+	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
-obj/d_array.o: src/Structures/d_array.c
+obj/Misc/%.o: src/Misc/%.c
+	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
-obj/tst.o: src/Structures/tst.c
+obj/%.o: src/%.c
+	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $^ -o $@
 
-obj/sanitize.o: src/Misc/sanitize.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-obj/shuffle.o: src/Misc/shuffle.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-obj/word_analyzer.o: src/Misc/word_analyzer.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-obj/hangman.o: src/hangman.c
-	$(CC) $(CFLAGS) -c $^ -o $@
-	
 clean:
-	rm -f obj/* bin/*
+	rm -rf obj/ bin/
