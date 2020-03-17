@@ -8,6 +8,7 @@ letter in the possible solutions to provide the best guesses statistically.
 
 For normal usage: `make`  
 For debugging: `make debug`  
+For a smaller binary: `make small`  
 To optimize: `make fast`  
 
 
