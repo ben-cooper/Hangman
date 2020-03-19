@@ -30,7 +30,7 @@ small: default
 
 $(BINARY): $(OBJECTS)
 	mkdir -p $(@D)
-	$(CC) $(LFLAGS) $^ -o $@
+	$(CC) $^ -o $@ $(LFLAGS)
 
 obj/Structures/%.o: src/Structures/%.c src/Structures/%.h
 	mkdir -p $(@D)
