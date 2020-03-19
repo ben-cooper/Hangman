@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "common.h"
 
 void *e_malloc(size_t size)
@@ -36,4 +37,20 @@ void *e_realloc(void *ptr, size_t size)
 	}
 
 	return result;
+}
+
+void e_read(int fd, void *buf, size_t count)
+{
+	if (read(fd, buf, count) == -1) {
+		perror("read");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void e_write(int fd, const void *buf, size_t count)
+{
+	if (write(fd, buf, count) == -1) {
+		perror("write");
+		exit(EXIT_FAILURE);
+	}
 }

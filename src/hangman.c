@@ -33,7 +33,7 @@ void hangman_words(tst_node * root, char const *hangman, size_t idx,
 				    (!index(hangman, root->chr)) &&
 				    (root->word)) {
 					/* match found */
-					write(fd, &(root->word),
+					e_write(fd, &(root->word),
 					      sizeof(root->word));
 				}
 
@@ -55,7 +55,7 @@ void hangman_words(tst_node * root, char const *hangman, size_t idx,
 			if ((len - idx) == 1) {
 				if (root->word) {
 					/* macth found */
-					write(fd, &(root->word),
+					e_write(fd, &(root->word),
 					      sizeof(root->word));
 				}
 			} else {
@@ -95,7 +95,7 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 			close(fd[0]);
 			hangman_words(roots[i], hangman, 0, len, wrong, fd[1]);
 			/* sending NULL to signal exit */
-			write(fd[1], &word, sizeof(word));
+			e_write(fd[1], &word, sizeof(word));
 			close(fd[1]);
 			exit(EXIT_SUCCESS);
 			break;
@@ -109,7 +109,7 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 	/* parent reads until all children have sent NULL */
 	i = 0;
 	while (i < workers) {
-		read(fd[0], &word, sizeof(word));
+		e_read(fd[0], &word, sizeof(word));
 		if (!word) {
 			i++;
 		} else {
