@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <sys/types.h>
 #include <string.h>
 #include <strings.h>
@@ -34,13 +35,12 @@ void hangman_words(tst_node * root, char const *hangman, size_t idx,
 				    (root->word)) {
 					/* match found */
 					e_write(fd, &(root->word),
-					      sizeof(root->word));
+						sizeof(root->word));
 				}
-
 			} else {
 				/* go to middle subtree */
 				if ((!index(wrong, root->chr)) &&
-					(!index(hangman, root->chr))) {
+				    (!index(hangman, root->chr))) {
 					hangman_words(root->middle, hangman,
 						      idx + 1, len, wrong, fd);
 				}
@@ -50,17 +50,18 @@ void hangman_words(tst_node * root, char const *hangman, size_t idx,
 		} else if (hangman[idx] > root->chr) {
 			hangman_words(root->right, hangman, idx, len, wrong, fd);
 		} else {
-			/* character matches */
 
+			/* character matches */
 			if ((len - idx) == 1) {
 				if (root->word) {
 					/* macth found */
 					e_write(fd, &(root->word),
-					      sizeof(root->word));
+						sizeof(root->word));
 				}
 			} else {
 				/* middle subtree */
-				hangman_words(root->middle, hangman, idx + 1, len, wrong, fd);
+				hangman_words(root->middle, hangman, idx + 1,
+					      len, wrong, fd);
 			}
 		}
 	}
@@ -84,13 +85,13 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 	for (i = 0; i < workers; i++) {
 		switch (child = fork()) {
 
-			/* failed */
+		/* failed */
 		case -1:
 			perror("fork");
 			exit(EXIT_FAILURE);
 			break;
 
-			/* child */
+		/* child */
 		case 0:
 			close(fd[0]);
 			hangman_words(roots[i], hangman, 0, len, wrong, fd[1]);
@@ -100,7 +101,7 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 			exit(EXIT_SUCCESS);
 			break;
 
-			/* parent */
+		/* parent */
 		default:
 			break;
 		}
@@ -140,6 +141,7 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 
 	/* reading file */
 	while (fgets(str_buffer, MAX_STRING_SIZE, word_list)) {
+
 		/* copying and sanitizing */
 		str = (char *) e_malloc(MAX_STRING_SIZE * sizeof(char));
 		strcpy(str, str_buffer);
@@ -151,7 +153,7 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 			free(str);
 		}
 	}
-	
+
 	/* checking if there are enough words for the number of threads */
 	if (array->elements < workers) {
 		fprintf(stderr, "Not enough words for number of threads.\n");
@@ -170,7 +172,7 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 		roots[idx] = tst_create(str, 0, len);
 	}
 
-	/* seperating array into separate ternary search trees
+	/* separating array into separate ternary search trees
 	   starting after the first words used to initialize the tst's */
 	for (idx = workers; idx < array->elements; idx++) {
 		str = array->array[idx];
@@ -187,46 +189,57 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 int main(int argc, char **argv)
 {
 	FILE *word_list;
-	size_t workers;
 	size_t idx;
 	int bytes;
+	int option;
 	tst_node **roots;
 	char *hangman;
 	char *wrong;
 
-	/* checking arguments */
-	if (argc == 2) {
-		/* no word list given, using unix */
-		if (!(word_list = fopen("/usr/share/dict/words", "r"))) {
-			perror("fopen");
-			fprintf(stderr, "Unix word list not found.  Please "
-				"give path to word list as argument.\n");
-			return EXIT_FAILURE;
+	/* default arguments */
+	size_t workers = 1;
+	char *dict_path = "/usr/share/dict/words";
+
+	/* getting arguemtns */
+	while ((option = getopt(argc, argv, "t:f:")) != -1) {
+
+		switch (option) {
+		case 't':
+			/* getting number of worker threads */
+			if (!(bytes = sscanf(optarg, "%zu", &workers))
+			    || !workers) {
+				fprintf(stderr,
+					"Invalid number of worker threads: %s\n",
+					optarg);
+				return EXIT_FAILURE;
+			}
+			break;
+
+		case 'f':
+			dict_path = optarg;
+			break;
+
+		default:
+			fprintf(stderr, "usage: %s [-t worker_threads] "
+				"[-f path_to_word_list]\n", argv[0]);
+			exit(EXIT_FAILURE);
+			break;
 		}
-	} else if (argc == 3) {
-		/* using word list specified */
-		if (!(word_list = fopen(argv[2], "r"))) {
-			perror("fopen");
-			return EXIT_FAILURE;
-		}
-	} else {
-		fprintf(stderr,
-			"usage: %s workers [path_to_word_list]\n", argv[0]);
+	}
+
+	/* using word list specified */
+	if (!(word_list = fopen(dict_path, "r"))) {
+		perror("fopen");
 		return EXIT_FAILURE;
 	}
 
-	/* getting number of worker threads */
-	if (!(bytes = sscanf(argv[1], "%zu", &workers)) || !workers) {
-		fprintf(stderr, "Invalid number of worker threads.\n");
-		return EXIT_FAILURE;
-	}
 	/* initialization */
 	roots = initialize_words(word_list, workers);
 	fclose(word_list);
 
 	/* user input loop */
 	while ((hangman = readline("Hangman string: ")) &&
-		  (wrong = readline("Wrong letters: "))) {
+	       (wrong = readline("Wrong letters: "))) {
 
 		if (sanitize(hangman, "_")) {
 			/* input is clean */
@@ -253,3 +266,4 @@ int main(int argc, char **argv)
 
 	return EXIT_SUCCESS;
 }
+

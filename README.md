@@ -14,7 +14,7 @@ To optimize: `make fast`
 
 ## Usage
 
-`usage: ./hangman workers [path_to_word_list]`  
+`usage: ./hangman [-t worker_threads]  [-f path_to_word_list]`  
 
 `workers` specifies the number of workers threads (actually forks) used to
 search the dictionary.  
@@ -35,7 +35,7 @@ go to [https://tiswww.case.edu/php/chet/readline/rltop.html](https://tiswww.case
 ## Examples
 
 ```
-$ ./hangman 3
+$ ./hangman
 Hangman string: ___
 Wrong letters: eaoi
 
