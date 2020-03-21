@@ -209,8 +209,7 @@ int main(int argc, char **argv)
 			if (!(bytes = sscanf(optarg, "%zu", &workers))
 			    || !workers) {
 				fprintf(stderr,
-					"Invalid number of worker threads: %s\n",
-					optarg);
+					"Invalid number of worker threads: %s\n", optarg);
 				return EXIT_FAILURE;
 			}
 			break;
