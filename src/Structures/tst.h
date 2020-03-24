@@ -13,5 +13,6 @@ tst_node *tst_create(char *const str, size_t idx, size_t len);
 void tst_insert(tst_node * tree, char *const str, size_t idx, size_t len);
 int tst_search(tst_node const *tree, char *const str, size_t idx, size_t len);
 void tst_destroy(tst_node * tree);
+size_t tst_height(tst_node const *tree);
 
 #endif

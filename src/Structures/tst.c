@@ -74,6 +74,27 @@ int tst_search(tst_node const *tree, char *const str, size_t idx, size_t len)
 	}
 }
 
+size_t tst_height(tst_node const *tree)
+{
+	size_t left_height;
+	size_t right_height;
+	size_t middle_height;
+	size_t result;
+
+	if (!tree) {
+		return 0;
+	}
+
+	left_height = tst_height(tree->left) + 1;
+	right_height = tst_height(tree->right) + 1;
+	middle_height = tst_height(tree->middle) + 1;
+
+	result = left_height > right_height ? left_height : right_height;
+	result = result > middle_height ? result : middle_height;
+
+	return result;
+}
+
 void tst_destroy(tst_node * tree)
 {
 	if (tree) {
