@@ -10,7 +10,7 @@ void insertion_sort(double *values, char *keys, size_t len)
 	size_t j;
 	/* temporary */
 	double v;
-	double k;
+	char k;
 
 	for (i = 0; i < len; i++) {
 		j = i;
