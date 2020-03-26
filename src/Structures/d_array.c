@@ -32,13 +32,21 @@ void d_array_insert(d_array * array, char *item)
 	array->elements++;
 }
 
-void d_array_destroy(d_array * array)
+void d_array_destroy(d_array *array, int destroy_str)
 {
+	size_t idx;
+	
+	if (destroy_str) {
+		for (idx = 0; idx < array->elements; idx++) {
+			free(array->array[idx]);
+		}
+	}
+	
 	free(array->array);
 	free(array);
 }
 
-void d_array_print(d_array * array)
+void d_array_print(d_array const *array)
 {
 	size_t idx;
 	size_t line_chars = 0;

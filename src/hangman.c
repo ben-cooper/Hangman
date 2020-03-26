@@ -4,7 +4,6 @@
 #include <getopt.h>
 #include <sys/types.h>
 #include <string.h>
-#include <strings.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "Misc/misc.h"
@@ -14,58 +13,6 @@
 
 #define MAX_STRING_SIZE 100
 #define ARRAY_START_SIZE 100
-
-/* finds all word in the tst matching the strring "hangman" while
-excluding wrong letter (hangman ex: "b_n_n_") into given pipe */
-void hangman_words(tst_node * root, char const *hangman, size_t idx,
-		   size_t len, char const *wrong, int fd)
-{
-	if (root) {
-
-		/* recursing */
-		if (hangman[idx] == '_') {
-			hangman_words(root->left, hangman, idx, len, wrong, fd);
-			hangman_words(root->right, hangman, idx, len, wrong, fd);
-
-			/* if last character, check for match */
-			if ((len - idx) == 1) {
-				/* check if part of wrong letter */
-				if ((!index(wrong, root->chr)) &&
-				    (!index(hangman, root->chr)) &&
-				    (root->word)) {
-					/* match found */
-					e_write(fd, &(root->word),
-						sizeof(root->word));
-				}
-			} else {
-				/* go to middle subtree */
-				if ((!index(wrong, root->chr)) &&
-				    (!index(hangman, root->chr))) {
-					hangman_words(root->middle, hangman,
-						      idx + 1, len, wrong, fd);
-				}
-			}
-		} else if (hangman[idx] < root->chr) {
-			hangman_words(root->left, hangman, idx, len, wrong, fd);
-		} else if (hangman[idx] > root->chr) {
-			hangman_words(root->right, hangman, idx, len, wrong, fd);
-		} else {
-
-			/* character matches */
-			if ((len - idx) == 1) {
-				if (root->word) {
-					/* macth found */
-					e_write(fd, &(root->word),
-						sizeof(root->word));
-				}
-			} else {
-				/* middle subtree */
-				hangman_words(root->middle, hangman, idx + 1,
-					      len, wrong, fd);
-			}
-		}
-	}
-}
 
 void fork_search(tst_node ** roots, char const *hangman, size_t len,
 		 char const *wrong, size_t workers)
@@ -94,7 +41,7 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 		/* child */
 		case 0:
 			close(fd[0]);
-			hangman_words(roots[i], hangman, 0, len, wrong, fd[1]);
+			tst_pattern_search(roots[i], hangman, 0, len, wrong, fd[1]);
 			/* sending NULL to signal exit */
 			e_write(fd[1], &word, sizeof(word));
 			close(fd[1]);
@@ -124,7 +71,7 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 	print_probabilities(found_words->array, found_words->elements, hangman);
 
 	/* freeing memory */
-	d_array_destroy(found_words);
+	d_array_destroy(found_words, 0);
 }
 
 /* returns array of ternary search trees based on the number of
@@ -181,7 +128,7 @@ tst_node **initialize_words(FILE * word_list, size_t workers)
 	}
 
 	/* freeing array memory */
-	d_array_destroy(array);
+	d_array_destroy(array, 0);
 
 	return roots;
 }
@@ -258,11 +205,10 @@ int main(int argc, char **argv)
 
 	/* freeing memory */
 	for (idx = 0; idx < workers; idx++) {
-		tst_destroy(roots[idx]);
+		tst_destroy(roots[idx], 1);
 	}
 	free(roots);
 	rl_clear_history();
 
 	return EXIT_SUCCESS;
 }
-

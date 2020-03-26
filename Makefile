@@ -8,15 +8,12 @@ STRUCTURES := $(addprefix obj/Structures/, $(STRUCTURES))
 MISC := sanitize.o shuffle.o word_analyzer.o
 MISC := $(addprefix obj/Misc/, $(MISC))
 
-MAIN := obj/hangman.o
+MAIN_OBJECTS := $(STRUCTURES) $(MISC) obj/hangman.o
+TEST_OBJECTS := $(STRUCTURES) $(MISC) obj/tests.o
 
-OBJECTS := $(STRUCTURES) $(MISC) $(MAIN)
+.PHONY: default fast debug small clean tests
 
-BINARY := bin/hangman
-
-.PHONY: default fast debug small clean
-
-default: $(BINARY)
+default: bin/hangman
 
 fast: CFLAGS += -O2
 fast: default
@@ -28,7 +25,14 @@ small: CFLAGS += -Os -fdata-sections -ffunction-sections
 small: LFLAGS += -Wl,--gc-sections -s
 small: default
 
-$(BINARY): $(OBJECTS)
+tests: CFLAGS += -g
+tests: bin/tests
+
+bin/hangman: $(MAIN_OBJECTS)
+	mkdir -p $(@D)
+	$(CC) $^ -o $@ $(LFLAGS)
+
+bin/tests: $(TEST_OBJECTS)
 	mkdir -p $(@D)
 	$(CC) $^ -o $@ $(LFLAGS)
 
