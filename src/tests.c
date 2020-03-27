@@ -410,7 +410,7 @@ char *test_insertion_sort_many_items()
 	insertion_sort(values, keys, 5);
 	
 	mu_assert("values not sorted", helper_is_sorted(values, 5));
-	mu_assert("keys not sorted", strcmp(keys, "linux") == 0);
+	mu_assert("keys not sorted", strncmp(keys, "linux", 5) == 0);
 	
 	return NULL;
 }
