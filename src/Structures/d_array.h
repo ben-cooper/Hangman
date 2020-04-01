@@ -2,8 +2,8 @@
 #define D_ARRAY_H
 
 #define SCALE 2
-#define PRINT_LINE_LIMIT 80
-#define PRINT_ITEM_LIMIT 200
+#define PRINT_COL_LIMIT 80
+#define PRINT_ROW_LIMIT 15
 #define DELIM "  "
 #define DELIM_LENGTH 2
 

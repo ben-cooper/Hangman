@@ -71,8 +71,8 @@ Tests run: 22
 For printing possible words, several constants can be altered in the file
 `d_array.h` to adjust the format, including:
 
-* Line character limit
-* Item limit (how many words can be printed)
+* Column limit (how many characters can be printed per line)
+* Row limit (how many lines of items can be printed.
 
 For adjusting options that affect memory usage, constant can be found in
 `d_array.h` and `hangman.c`.  

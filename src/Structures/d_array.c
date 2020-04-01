@@ -49,22 +49,26 @@ void d_array_destroy(d_array *array, int destroy_str)
 void d_array_print(d_array const *array)
 {
 	size_t idx;
-	size_t line_chars = 0;
+	size_t col = 0;
+	size_t row = 0;
 
 	for (idx = 0; idx < array->elements; idx++) {
 		
-		line_chars += strlen(array->array[idx]) + DELIM_LENGTH;
-		
-		if (line_chars > PRINT_LINE_LIMIT) {
-			printf("\n");
-			line_chars = strlen(array->array[idx]) + DELIM_LENGTH;
-		}
+		col += strlen(array->array[idx]) + DELIM_LENGTH;
 
-		printf("%s" DELIM, array->array[idx]);
+		/* checking end of column */
+		if (col > PRINT_COL_LIMIT) {
+			printf("\n");
+			col = strlen(array->array[idx]) + DELIM_LENGTH;
+			row++;
+		}
 		
-		if (idx > PRINT_ITEM_LIMIT) {
+		/* checking end of rows */
+		if (row > PRINT_ROW_LIMIT) {
 			printf("\nPrint Limit reached!");
 			break;
+		} else {
+			printf("%s" DELIM, array->array[idx]);
 		}
 	}
 }
