@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 
 	/* default arguments */
 	size_t workers = 1;
-	char *dict_path = "/usr/share/dict/words";
+	char const *dict_path = "/usr/share/dict/words";
 
 	/* getting arguemtns */
 	while ((option = getopt(argc, argv, "t:f:")) != -1) {
