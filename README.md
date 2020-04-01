@@ -10,6 +10,7 @@ For normal usage: `make`
 For debugging: `make debug`  
 For a smaller binary: `make small`  
 To optimize: `make fast`  
+For unit testing: `make tests`  
 
 
 ## Usage
@@ -23,11 +24,11 @@ search the dictionary.
 dictionary (optional).  The default is the Unix word list using the path.
 `/usr/share/dict/words`  
 
-During usage `CTRL-D` can be used at either the hangman string prompt or
-the wrong letters prompt.  
+During usage `CTRL-D` can be used to exit at either the hangman string prompt
+or the wrong letters prompt.
 
 Thanks to the GNU Readline library, `CTRL-P` and `CTRL-N` can be used to
-scroll through previous entries.  To learn more about it's functionality
+scroll through previous entries.  To learn more about its functionality
 go to [https://tiswww.case.edu/php/chet/readline/rltop.html](https://tiswww.case.edu/php/chet/readline/rltop.html)  
 
 
@@ -36,40 +37,33 @@ go to [https://tiswww.case.edu/php/chet/readline/rltop.html](https://tiswww.case
 
 ```
 $ ./hangman
-Hangman string: ___
-Wrong letters: eaoi
+Hangman string: _o__u_e_
+Wrong letters: ai
 
 Possible words:
-bus  bur  hub  huh  hut  gyp  gum  fry  jug  jut  dub  dug  nun  ply  pwn  pun  
-pus  rut  mum  tug  tun  tux  sum  yum  wry  cut  cur  cry  dud  dun  dry  cup  
-gnu  guy  gut  fly  fun  mug  nub  bud  bum  buy  rum  run  rub  ugh  ump  tub  
-yuk  why  shy  sly  sup  sub  sty  spy  pyx  pry  brr  bug  bun  but  flu  fur  
-gym  gun  duh  cub  cud  hug  hum  lug  mud  pub  pug  pup  put  rug  urn  ups  
-thy  try  sky  sun  yup  nth  nut  
+fortunes  colluded  colludes  colluder  commuted  commutes  commuter  communes  
+communed  computed  computes  computer  costumed  costumes  costumer  cornuted  
+corpuses  conduced  conduces  confused  confuses  confuted  confuter  confutes  
+conjures  conjurer  conjured  consumed  consumes  consumer  contused  contuses  
+tonsured  tonsures  tortured  tortures  torturer  postures  posturer  postured  
+pollutes  polluter  polluted  
 
 Letter Probabilities:
-Letter: u	Chance: 75.86%
-Letter: y	Chance: 26.44%
-Letter: b	Chance: 19.54%
-Letter: g	Chance: 19.54%
-Letter: p	Chance: 19.54%
-Letter: r	Chance: 18.39%
-Letter: t	Chance: 18.39%
-Letter: n	Chance: 17.24%
-Letter: s	Chance: 13.79%
-Letter: h	Chance: 12.64%
-Letter: m	Chance: 12.64%
-Letter: d	Chance: 10.34%
-Letter: c	Chance: 6.90%
-Letter: f	Chance: 5.75%
-Letter: l	Chance: 5.75%
-Letter: w	Chance: 3.45%
-Letter: j	Chance: 2.30%
-Letter: k	Chance: 2.30%
-Letter: x	Chance: 2.30%
+Letter: c	Chance: 72.09%
+Letter: t	Chance: 62.79%
+Letter: s	Chance: 60.47%
+Letter: n	Chance: 48.84%
+Letter: r	Chance: 48.84%
+Letter: d	Chance: 44.19%
+Letter: m	Chance: 32.56%
+Letter: p	Chance: 23.26%
+Letter: f	Chance: 13.95%
+Letter: l	Chance: 13.95%
+Letter: j	Chance: 6.98%
 
-
-Hangman string:
+$ ./tests
+All tests passed!
+Tests run: 22
 ```
 
 ## Configuration
