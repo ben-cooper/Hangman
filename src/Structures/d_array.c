@@ -71,4 +71,6 @@ void d_array_print(d_array const *array)
 			printf("%s" DELIM, array->array[idx]);
 		}
 	}
+
+	printf("\n");
 }

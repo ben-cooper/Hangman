@@ -65,10 +65,15 @@ void fork_search(tst_node ** roots, char const *hangman, size_t len,
 		}
 	}
 
-	printf("\nPossible words:\n");
-	d_array_print(found_words);
-	printf("\n\nLetter Probabilities:\n");
-	print_probabilities(found_words->array, found_words->elements, hangman);
+	if (found_words->elements == 0) {
+		printf("\nCould not find any possible words!");
+	} else {
+		printf("\nPossible words:\n");
+		d_array_print(found_words);
+		printf("\nTotal words found: %zu\n", found_words->elements);
+		printf("\nLetter Probabilities:\n");
+		print_probabilities(found_words->array, found_words->elements, hangman);
+	}
 
 	/* freeing memory */
 	d_array_destroy(found_words, 0);
