@@ -45,7 +45,7 @@ void tst_destroy(struct tst_node *tree, int destroy_str);
  * @param fd: the file descriptor to write matching words into
  */
 void tst_pattern_search(struct tst_node *root, char const *pattern, size_t idx,
-						size_t len, char const *wrong, int fd);
+                        size_t len, char const *wrong, int fd);
 
 /**
  * Returns 1 if the word is present in the tree
@@ -55,7 +55,7 @@ void tst_pattern_search(struct tst_node *root, char const *pattern, size_t idx,
  * @param len: the length of the string
  */
 int tst_search(struct tst_node const *tree, char const *str, size_t idx,
-				size_t len);
+               size_t len);
 
 /**
  * Returns the height of the ternary search tree

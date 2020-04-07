@@ -22,7 +22,7 @@ void d_array_insert(struct d_array *array, char *item)
 	if (array->elements >= array->capacity) {
 		array->capacity *= SCALE;
 		array->array = e_realloc(array->array,
-								array->capacity * sizeof(char *));
+		                         array->capacity * sizeof(char *));
 	}
 
 	array->array[array->elements] = item;

@@ -56,7 +56,7 @@ void tst_insert(struct tst_node *tree, char *str, size_t idx, size_t len)
 }
 
 int tst_search(struct tst_node const *tree, char const *str, size_t idx,
-				size_t len)
+               size_t len)
 {
 	if (!tree)
 		return 0;
@@ -67,11 +67,11 @@ int tst_search(struct tst_node const *tree, char const *str, size_t idx,
 		return tree->right && tst_search(tree->right, str, idx, len);
 	else
 		return (((len - idx) == 1) && tree->word) ||
-				tst_search(tree->middle, str, idx + 1, len);
+		       tst_search(tree->middle, str, idx + 1, len);
 }
 
 void tst_pattern_search(struct tst_node * root, char const *pattern,
-						size_t idx, size_t len, char const *wrong, int fd)
+                        size_t idx, size_t len, char const *wrong, int fd)
 {
 	if (!root)
 		return;

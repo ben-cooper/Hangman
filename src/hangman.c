@@ -24,7 +24,7 @@
  * @param workers: the number of child processes to create
  */
 void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
-				char const *wrong, size_t workers)
+                 char const *wrong, size_t workers)
 {
 	int fd[2];
 	size_t i;
@@ -163,7 +163,7 @@ int main(int argc, char **argv)
 			/* getting number of worker threads */
 			if (!(bytes = sscanf(optarg, "%zu", &workers)) || !workers) {
 				fprintf(stderr, "Invalid number of worker threads: %s\n",
-						optarg);
+				        optarg);
 
 				return EXIT_FAILURE;
 			}
@@ -175,8 +175,8 @@ int main(int argc, char **argv)
 
 		default:
 			fprintf(stderr,
-					"usage: %s [-t worker_threads] [-f path_to_word_list]\n",
-					argv[0]);
+			        "usage: %s [-t worker_threads] [-f path_to_word_list]\n",
+			        argv[0]);
 
 			return EXIT_FAILURE;
 		}
