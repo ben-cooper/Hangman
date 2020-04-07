@@ -5,13 +5,11 @@
 #include <ctype.h>
 #include "misc.h"
 
-/* return false if string contains non alphabetical characters
-otherwise convert characters to lowercase and return true */
-int sanitize(char *str, char const *exceptions)
+int sanitized(char *str, char const *except)
 {
 	size_t i;
 	size_t len = strlen(str);
-	
+
 	/* empty strings are not valid */
 	if (!len)
 		return 0;
@@ -19,15 +17,14 @@ int sanitize(char *str, char const *exceptions)
 	for (i = 0; i < len; i++) {
 
 		/* removing new line */
-		if (str[i] == '\n') {
+		if (str[i] == '\n')
 			str[i] = '\0';
-		} else if (!((isalpha(str[i]) && islower(str[i])) ||
-			     (index(exceptions, str[i])))) {
-			/* illegal character found */
+		else if (!((isalpha(str[i]) && islower(str[i])) ||
+				(index(except, str[i]))))
 			return 0;
-		}
+
 	}
-	
+
 	/* check if string is now empty */
 	len = strlen(str);
 	if (!len)
