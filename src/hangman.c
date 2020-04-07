@@ -14,7 +14,6 @@
 #define MAX_STRING_SIZE 100
 #define ARRAY_START_SIZE 100
 
-
 /**
  * Creates child processes to search through an array of ternary search trees
  * for a given pattern.

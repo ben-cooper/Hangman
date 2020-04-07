@@ -1,5 +1,6 @@
 #ifndef MISC_H
 #define MISC_H
+
 /**
  * Prints frequency of each letter in the list of words.  Assumes
  * strings are all lower case letters
