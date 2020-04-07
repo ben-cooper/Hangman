@@ -66,6 +66,8 @@ void print_probability(char *const *str, size_t n, char const *exceptions)
 
 	insertion_sort(probability, letters, 26);
 
+	printf("None\b\b\b\b");
+
 	for (i = 0; i < 26; i++)
 		if ((!index(exceptions, letters[i])) && (probability[i]))
 			printf("Letter: %c\tChance: %.2f%%\n", letters[i], probability[i]);
