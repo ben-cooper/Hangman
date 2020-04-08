@@ -48,7 +48,9 @@ conjures  conjurer  conjured  consumed  consumes  consumer  contused  contuses
 tonsured  tonsures  tortured  tortures  torturer  postures  posturer  postured  
 pollutes  polluter  polluted  
 
-Letter Probabilities:
+Total words found: 43
+
+Letter probabilities:
 Letter: c	Chance: 72.09%
 Letter: t	Chance: 62.79%
 Letter: s	Chance: 60.47%
@@ -63,7 +65,7 @@ Letter: j	Chance: 6.98%
 
 $ ./tests
 All tests passed!
-Tests run: 22
+Tests run: 23
 ```
 
 ## Configuration

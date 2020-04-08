@@ -77,7 +77,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 		printf("\nPossible words:\n");
 		d_array_print(found_words);
 		printf("\nTotal words found: %zu\n", found_words->elements);
-		printf("\nLetter Probabilities:\n");
+		printf("\nLetter probabilities:\n");
 		print_probability(found_words->array, found_words->elements, hangman);
 	}
 

@@ -135,7 +135,8 @@ char *test_tst_pattern_search_valid_string()
 {
 	struct tst_node *root;
 	int fd[2];
-	char *output;
+	char *output1;
+	char *output2;
 	ssize_t nbytes;
 
 	test_name = "tst pattern search valid string";
@@ -147,20 +148,17 @@ char *test_tst_pattern_search_valid_string()
 
 
 	tst_pattern_search(root, "_est", 0, 4, "", fd[1]);
-	e_read(fd[0], &output, sizeof(output));
-	mu_assert("first string not found", strcmp(output, "rest") == 0);
+	e_read(fd[0], &output1, sizeof(output1));
+	e_read(fd[0], &output2, sizeof(output2));
 
-	e_read(fd[0], &output, sizeof(output));
-	mu_assert("second string not found", strcmp(output, "best") == 0);
+	mu_assert("valid strings not found",
+	          ((strcmp(output1, "best") == 0) && (strcmp(output2, "rest") == 0)) ||
+	          ((strcmp(output1, "rest") == 0) && (strcmp(output2, "best") == 0)));
 
 	/* non blocking read to check empty pipe */
-	if (fcntl(fd[0], F_SETFL, O_NONBLOCK) < 0)
-	{
-		perror("fcntl");
-		exit(EXIT_FAILURE);
-	}
+	fcntl(fd[0], F_SETFL, O_NONBLOCK);
 
-	nbytes = read(fd[0], &output, sizeof(output));
+	nbytes = read(fd[0], &output1, sizeof(output1));
 	mu_assert("extra string added", (nbytes == -1) && (errno == EAGAIN));
 
 	tst_destroy(root, 0);
@@ -185,18 +183,51 @@ char *test_tst_pattern_search_invalid_string()
 	tst_insert(root, "rest", 0, 4);
 	tst_insert(root, "resting", 0, 7);
 
-
 	tst_pattern_search(root, "_est_", 0, 5, "", fd[1]);
 
 	/* non blocking read to check empty pipe */
-	if (fcntl(fd[0], F_SETFL, O_NONBLOCK) < 0)
-	{
-		perror("fcntl");
-		exit(EXIT_FAILURE);
-	}
+	fcntl(fd[0], F_SETFL, O_NONBLOCK);
 
 	nbytes = read(fd[0], &output, sizeof(output));
 	mu_assert("string found", (nbytes == -1) && (errno == EAGAIN));
+
+	tst_destroy(root, 0);
+
+	close(fd[0]);
+	close(fd[1]);
+
+	return NULL;
+}
+
+char *test_tst_pattern_search_duplicate_unknown_letter()
+{
+	struct tst_node *root;
+	int fd[2];
+	char *output1;
+	char *output2;
+	ssize_t nbytes;
+
+	test_name = "tst pattern search duplicate unknown letter";
+
+	pipe(fd);
+	root = tst_create("bitter", 0, 6);
+	tst_insert(root, "better", 0, 6);
+	tst_insert(root, "butter", 0, 6);
+
+	tst_pattern_search(root, "b_tter", 0, 6, "", fd[1]);
+
+	e_read(fd[0], &output1, sizeof(output1));
+	e_read(fd[0], &output2, sizeof(output2));
+
+	mu_assert("valid strings not found",
+	          ((strcmp(output1, "bitter") == 0) && (strcmp(output2, "butter") == 0)) ||
+	          ((strcmp(output1, "butter") == 0) && (strcmp(output2, "bitter") == 0)));
+
+	/* non blocking read to check empty pipe */
+	fcntl(fd[0], F_SETFL, O_NONBLOCK);
+
+	nbytes = read(fd[0], &output1, sizeof(output1));
+	mu_assert("extra string added", (nbytes == -1) && (errno == EAGAIN));
 
 	tst_destroy(root, 0);
 
@@ -425,6 +456,7 @@ char *all_tests()
 	mu_run_test(test_tst_single_char_pattern_search);
 	mu_run_test(test_tst_pattern_search_valid_string);
 	mu_run_test(test_tst_pattern_search_invalid_string);
+	mu_run_test(test_tst_pattern_search_duplicate_unknown_letter);
 	mu_run_test(test_array_creation);
 	mu_run_test(test_array_normal_insert);
 	mu_run_test(test_array_multiple_insert);
