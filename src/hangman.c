@@ -98,14 +98,13 @@ struct tst_node **initialize_words(FILE * word_list, size_t workers)
 	char str_buffer[MAX_STRING_SIZE];
 	struct d_array *array = d_array_create(ARRAY_START_SIZE);
 	struct tst_node **roots;
-	int clean;
 
 	while (fgets(str_buffer, MAX_STRING_SIZE, word_list)) {
 
 		str = e_malloc(MAX_STRING_SIZE * sizeof(char));
 		strcpy(str, str_buffer);
 
-		if ((clean = sanitized(str, "")))
+		if (sanitized(str, ""))
 			d_array_insert(array, str);
 		else
 			free(str);
@@ -144,7 +143,6 @@ int main(int argc, char **argv)
 {
 	FILE *word_list;
 	size_t i;
-	int bytes;
 	int option;
 	struct tst_node **roots;
 	char *hangman;
@@ -161,7 +159,7 @@ int main(int argc, char **argv)
 
 		case 't':
 			/* getting number of worker threads */
-			if (!(bytes = sscanf(optarg, "%zu", &workers)) || !workers) {
+			if (!sscanf(optarg, "%zu", &workers) || !workers) {
 				fprintf(stderr, "Invalid number of worker threads: %s\n",
 				        optarg);
 

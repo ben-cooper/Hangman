@@ -60,7 +60,7 @@ void print_probability(char *const *str, size_t n, char const *exceptions)
 	}
 
 	for (i = 0; i < 26; i++) {
-		chance = (double) word_count[i] / n * 100;
+		chance = (float) word_count[i] / n * 100;
 		probability[i] = chance;
 	}
 
