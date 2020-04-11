@@ -8,6 +8,9 @@ void shuffle(char **strs, size_t n)
 	size_t j;
 	char *tmp;
 
+	if (n < 2)
+		return;
+
 	srand(time(NULL));
 
 	for (i = 0; i < (n - 2); i++) {
