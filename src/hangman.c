@@ -190,7 +190,7 @@ int main(int argc, char **argv)
 
 	/* user input loop */
 	while ((hangman = readline("Hangman string: ")) &&
-			(wrong = readline("Wrong letters: "))) {
+	       (wrong = readline("Wrong letters: "))) {
 
 		if (sanitized(hangman, "_"))
 			fork_search(roots, hangman, strlen(hangman), wrong, workers);
