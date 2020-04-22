@@ -6,11 +6,10 @@ letter in the possible solutions to provide the best guesses statistically.
 
 ## Compilation
 
-For normal usage: `make`  
+For normal usage: `make` or `make release`  
 For debugging: `make debug`  
-For a smaller binary: `make small`  
-To optimize: `make fast`  
 For unit testing: `make tests`  
+To remove compiled files: `make clean`  
 
 
 ## Usage
