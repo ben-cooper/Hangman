@@ -402,50 +402,6 @@ char *test_sanitized_bad_string_newline()
 	return NULL;
 }
 
-/* word analyzer tests */
-extern void insertion_sort(double *values, char *keys, size_t len);
-
-int helper_is_sorted(double *array, size_t len)
-{
-	size_t i;
-
-	for (i = 0; i < (len - 1); i++) {
-		if (array[i] < array[i+1]) {
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
-char *test_insertion_sort_single_item()
-{
-	double values[1] = {5.0};
-	char keys[1] = {'f'};
-
-	test_name = "insertion sort single item";
-	insertion_sort(values, keys, 1);
-
-	mu_assert("value has changed", values[0] == 5.0);
-	mu_assert("key has changed", keys[0] == 'f');
-
-	return NULL;
-}
-
-char *test_insertion_sort_many_items()
-{
-	double values[5] = {3.0, 2.0, 4.0, 5.0, 1.0};
-	char keys[5] = {'n', 'u', 'i', 'l', 'x'};
-
-	test_name = "insertion sort many items";
-	insertion_sort(values, keys, 5);
-
-	mu_assert("values not sorted", helper_is_sorted(values, 5));
-	mu_assert("keys not sorted", strncmp(keys, "linux", 5) == 0);
-
-	return NULL;
-}
-
 char *all_tests()
 {
 	mu_run_test(test_tst_single_char_create);
@@ -469,8 +425,6 @@ char *all_tests()
 	mu_run_test(test_sanitized_bad_string);
 	mu_run_test(test_sanitized_clean_string_newline);
 	mu_run_test(test_sanitized_bad_string_newline);
-	mu_run_test(test_insertion_sort_single_item);
-	mu_run_test(test_insertion_sort_many_items);
 	return NULL;
 }
 

@@ -1,54 +1,48 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include "misc.h"
 
-void insertion_sort(double *values, char *keys, size_t len)
+struct pair {
+	char letter;
+	float chance;
+};
+
+int pair_compare(void const *x_arg, void const *y_arg)
 {
-	size_t i;
-	size_t j;
-	double tmp_v;
-	char tmp_k;
+	struct pair const *x = x_arg;
+	struct pair const *y = y_arg;
 
-	for (i = 0; i < len; i++) {
-		j = i;
-		while ((j > 0) && (values[j - 1] < values[j])) {
-			/* swapping */
-			tmp_v = values[j];
-			tmp_k = keys[j];
-			values[j] = values[j - 1];
-			keys[j] = keys[j - 1];
-			values[j - 1] = tmp_v;
-			keys[j - 1] = tmp_k;
-
-			j--;
-		}
-	}
+	if (x->chance < y->chance)
+		return 1;
+	else if (x->chance > y->chance)
+		return -1;
+	else
+		return 0;
 }
 
-void print_probability(char *const *str, size_t n, char const *exceptions)
+void print_probability(char *const *words, size_t n, char const *exceptions)
 {
 	size_t i;
 	size_t j;
 	size_t len;
 	int idx;
-	float chance;
-
 	int word_count[26] = { 0 };
 	int letter_bitmap[26] = { 0 };
 
-	/* arrays for sorting result */
-	double probability[26] = { 0 };
-	char letters[26] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
-	                    'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-	                    's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+	struct pair results[26];
+
+	/* initializing result */
+	for (i = 0; i < 26; i++)
+		results[i].letter = 'a' + i;
 
 	for (i = 0; i < n; i++) {
-		len = strlen(str[i]);
+		len = strlen(words[i]);
 
 		/* adding each letter of word */
 		for (j = 0; j < len; j++) {
-			idx = str[i][j] - 97;
+			idx = words[i][j] - 97;
 			letter_bitmap[idx] = 1;
 		}
 
@@ -59,16 +53,15 @@ void print_probability(char *const *str, size_t n, char const *exceptions)
 		memset(letter_bitmap, 0, sizeof(letter_bitmap));
 	}
 
-	for (i = 0; i < 26; i++) {
-		chance = (float) word_count[i] / n * 100;
-		probability[i] = chance;
-	}
+	for (i = 0; i < 26; i++)
+		results[i].chance = (float) word_count[i] / n * 100;
 
-	insertion_sort(probability, letters, 26);
+	qsort(results, 26, sizeof(struct pair), pair_compare);
 
 	printf("None\b\b\b\b");
 
 	for (i = 0; i < 26; i++)
-		if ((!index(exceptions, letters[i])) && (probability[i]))
-			printf("Letter: %c\tChance: %.2f%%\n", letters[i], probability[i]);
+		if ((!index(exceptions, results[i].letter)) && (results[i].chance))
+			printf("Letter: %c\tChance: %.2f%%\n", results[i].letter,
+			       results[i].chance);
 }
