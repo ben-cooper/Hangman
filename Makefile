@@ -2,37 +2,29 @@ CC := gcc
 CFLAGS := -Wall -Wextra -Werror --std=c89
 LFLAGS := -lreadline
 
-STRUCTURES := d_array.o tst.o common.o
-STRUCTURES := $(addprefix obj/Structures/, $(STRUCTURES))
+STRUCT_OBJECTS := d_array.o tst.o common.o
+STRUCT_OBJECTS := $(addprefix obj/Structures/, $(STRUCT_OBJECTS))
 
-MISC := sanitize.o shuffle.o word_analyzer.o
-MISC := $(addprefix obj/Misc/, $(MISC))
+MISC_OBJECTS := sanitize.o shuffle.o word_analyzer.o
+MISC_OBJECTS := $(addprefix obj/Misc/, $(MISC_OBJECTS))
 
-MAIN_OBJECTS := $(STRUCTURES) $(MISC) obj/hangman.o
-TEST_OBJECTS := $(STRUCTURES) $(MISC) obj/tests.o
+.PHONY: release debug tests clean
 
-.PHONY: default fast debug small clean tests
-
-default: bin/hangman
-
-fast: CFLAGS += -O2
-fast: default
+release: CFLAGS += -O2 -fdata-sections -ffunction-sections
+release: LFLAGS += -Wl,--gc-sections -s
+release: bin/hangman
 
 debug: CFLAGS += -g
-debug: default
-
-small: CFLAGS += -Os -fdata-sections -ffunction-sections
-small: LFLAGS += -Wl,--gc-sections -s
-small: default
+debug: bin/hangman
 
 tests: CFLAGS += -g
 tests: bin/tests
 
-bin/hangman: $(MAIN_OBJECTS)
+bin/hangman: $(STRUCT_OBJECTS) $(MISC_OBJECTS) obj/hangman.o
 	mkdir -p $(@D)
 	$(CC) $^ -o $@ $(LFLAGS)
 
-bin/tests: $(TEST_OBJECTS)
+bin/tests: $(STRUCT_OBJECTS) $(MISC_OBJECTS) obj/tests.o
 	mkdir -p $(@D)
 	$(CC) $^ -o $@ $(LFLAGS)
 
