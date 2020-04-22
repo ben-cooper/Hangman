@@ -65,7 +65,7 @@ Letter: j	Chance: 6.98%
 
 $ ./tests
 All tests passed!
-Tests run: 23
+Tests run: 21
 ```
 
 ## Configuration
