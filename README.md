@@ -36,7 +36,7 @@ go to [https://tiswww.case.edu/php/chet/readline/rltop.html](https://tiswww.case
 
 ```
 $ ./hangman
-Hangman string: _o__u_e_
+Hangman string: -o--u-e-
 Wrong letters: ai
 
 Possible words:

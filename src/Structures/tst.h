@@ -1,6 +1,9 @@
 #ifndef TST_H
 #define TST_H
 
+#define WILDCARD_CHR '-'
+#define WILDCARD_STR "-"
+
 /**
  * Structure for a single node in a ternary search tree
  */

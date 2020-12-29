@@ -192,7 +192,7 @@ int main(int argc, char **argv)
 	while ((hangman = readline("Hangman string: ")) &&
 	       (wrong = readline("Wrong letters: "))) {
 
-		if (sanitized(hangman, "_"))
+		if (sanitized(hangman, WILDCARD_STR))
 			fork_search(roots, hangman, strlen(hangman), wrong, workers);
 		else
 			fprintf(stderr, "Invalid input!\n");

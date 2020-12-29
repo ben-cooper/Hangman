@@ -76,17 +76,17 @@ void tst_pattern_search(struct tst_node * root, char const *pattern,
 	if (!root)
 		return;
 
-	if ((pattern[idx] == '_') || (pattern[idx] < root->chr))
+	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] < root->chr))
 		tst_pattern_search(root->left, pattern, idx, len, wrong, fd);
 
-	if ((pattern[idx] == '_') || (pattern[idx] > root->chr))
+	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] > root->chr))
 		tst_pattern_search(root->right, pattern, idx, len, wrong, fd);
 
-	if ((pattern[idx] == '_') &&
+	if ((pattern[idx] == WILDCARD_CHR) &&
 		(index(wrong, root->chr) || index(pattern, root->chr)))
 		return;
 
-	if ((pattern[idx] == root->chr) || (pattern[idx] == '_')) {
+	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] == root->chr)) {
 		if ((len - idx) == 1) {
 			if (root->word)
 				e_write(fd, &(root->word), sizeof(root->word));
