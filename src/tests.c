@@ -116,7 +116,7 @@ char *test_tst_single_char_pattern_search()
 	root = tst_create("a", 0, 1);
 	tst_insert(root, "b", 0, 1);
 
-	tst_pattern_search(root, "_", 0, 1, "", fd[1]);
+	tst_pattern_search(root, "-", 0, 1, "", fd[1]);
 	e_read(fd[0], &output, sizeof(output));
 	mu_assert("first character not found", strcmp(output, "b") == 0);
 
@@ -147,7 +147,7 @@ char *test_tst_pattern_search_valid_string()
 	tst_insert(root, "resting", 0, 7);
 
 
-	tst_pattern_search(root, "_est", 0, 4, "", fd[1]);
+	tst_pattern_search(root, "-est", 0, 4, "", fd[1]);
 	e_read(fd[0], &output1, sizeof(output1));
 	e_read(fd[0], &output2, sizeof(output2));
 
@@ -183,7 +183,7 @@ char *test_tst_pattern_search_invalid_string()
 	tst_insert(root, "rest", 0, 4);
 	tst_insert(root, "resting", 0, 7);
 
-	tst_pattern_search(root, "_est_", 0, 5, "", fd[1]);
+	tst_pattern_search(root, "-est-", 0, 5, "", fd[1]);
 
 	/* non blocking read to check empty pipe */
 	fcntl(fd[0], F_SETFL, O_NONBLOCK);
@@ -214,7 +214,7 @@ char *test_tst_pattern_search_duplicate_unknown_letter()
 	tst_insert(root, "better", 0, 6);
 	tst_insert(root, "butter", 0, 6);
 
-	tst_pattern_search(root, "b_tter", 0, 6, "", fd[1]);
+	tst_pattern_search(root, "b-tter", 0, 6, "", fd[1]);
 
 	e_read(fd[0], &output1, sizeof(output1));
 	e_read(fd[0], &output2, sizeof(output2));
