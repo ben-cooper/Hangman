@@ -83,7 +83,7 @@ void tst_pattern_search(struct tst_node * root, char const *pattern,
 		tst_pattern_search(root->right, pattern, idx, len, wrong, fd);
 
 	if ((pattern[idx] == WILDCARD_CHR) &&
-		(index(wrong, root->chr) || index(pattern, root->chr)))
+		(strchr(wrong, root->chr) || strchr(pattern, root->chr)))
 		return;
 
 	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] == root->chr)) {

@@ -61,7 +61,7 @@ void print_probability(char *const *words, size_t n, char const *exceptions)
 	printf("None\b\b\b\b");
 
 	for (i = 0; i < 26; i++)
-		if ((!index(exceptions, results[i].letter)) && (results[i].chance))
+		if ((!strchr(exceptions, results[i].letter)) && (results[i].chance))
 			printf("Letter: %c\tChance: %.2f%%\n", results[i].letter,
 			       results[i].chance);
 }

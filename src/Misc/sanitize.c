@@ -20,7 +20,7 @@ int sanitized(char *str, char const *except)
 		if (str[i] == '\n')
 			str[i] = '\0';
 		else if (!((isalpha(str[i]) && islower(str[i])) ||
-				(index(except, str[i]))))
+				(strchr(except, str[i]))))
 			return 0;
 
 	}
