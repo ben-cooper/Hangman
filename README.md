@@ -11,7 +11,6 @@ For debugging: `make debug`
 For unit testing: `make tests`  
 To remove compiled files: `make clean`  
 
-
 ## Usage
 
 `usage: ./hangman [-t worker_threads]  [-f path_to_word_list]`  
@@ -25,12 +24,6 @@ dictionary (optional).  The default is the Unix word list using the path.
 
 During usage `CTRL-D` can be used to exit at either the hangman string prompt
 or the wrong letters prompt.
-
-Thanks to the GNU Readline library, `CTRL-P` and `CTRL-N` can be used to
-scroll through previous entries.  To learn more about its functionality
-go to [https://tiswww.case.edu/php/chet/readline/rltop.html](https://tiswww.case.edu/php/chet/readline/rltop.html)  
-
-
 
 ## Examples
 
@@ -47,7 +40,7 @@ conjures  conjurer  conjured  consumed  consumes  consumer  contused  contuses
 tonsured  tonsures  tortured  tortures  torturer  postures  posturer  postured  
 pollutes  polluter  polluted  
 
-Total words found: 43
+Words found: 43
 
 Letter probabilities:
 Letter: c	Chance: 72.09%
@@ -64,7 +57,7 @@ Letter: j	Chance: 6.98%
 
 $ ./tests
 All tests passed!
-Tests run: 21
+Tests run: 18
 ```
 
 ## Configuration
@@ -84,4 +77,4 @@ For adjusting options that affect memory usage, constant can be found in
 
 ## Dependencies
 
-* GNU Readline
+* libedit (development files)

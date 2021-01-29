@@ -4,8 +4,7 @@
 #include <getopt.h>
 #include <sys/types.h>
 #include <string.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <histedit.h>
 #include "Misc/misc.h"
 #include "Structures/common.h"
 #include "Structures/d_array.h"
@@ -13,6 +12,9 @@
 
 #define MAX_STRING_SIZE 100
 #define ARRAY_START_SIZE 100
+
+#define USAGE "usage: %s [-t worker_threads] [-f path_to_word_list]\n"
+#define INVALID_WORKERS "Invalid number of worker threads: %s\n"
 
 /**
  * Creates child processes to search through an array of ternary search trees
@@ -24,10 +26,10 @@
  * @param workers: the number of child processes to create
  */
 void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
-                 char const *wrong, size_t workers)
+                 char const *wrong, unsigned workers)
 {
 	int fd[2];
-	size_t i;
+	unsigned i;
 	pid_t child;
 	char *word = NULL;
 	struct d_array *found_words = d_array_create(ARRAY_START_SIZE);
@@ -76,7 +78,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 	} else {
 		printf("\nPossible words:\n");
 		d_array_print(found_words);
-		printf("\nTotal words found: %zu\n", found_words->elements);
+		printf("\nWords found: %lu\n", (unsigned long) found_words->elements);
 		printf("\nLetter probabilities:\n");
 		print_probability(found_words->array, found_words->elements, hangman);
 	}
@@ -90,7 +92,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
  * @param word_list: file descriptor to read
  * @param workers: the number of child processes to be created
  */
-struct tst_node **initialize_words(FILE * word_list, size_t workers)
+struct tst_node **initialize_words(FILE * word_list, unsigned workers)
 {
 	size_t len;
 	size_t i;
@@ -103,6 +105,9 @@ struct tst_node **initialize_words(FILE * word_list, size_t workers)
 
 		str = e_malloc(MAX_STRING_SIZE * sizeof(char));
 		strcpy(str, str_buffer);
+
+		/* removing newline */
+		str[strcspn(str, "\n")] = '\0';
 
 		if (sanitized(str, ""))
 			d_array_insert(array, str);
@@ -139,17 +144,32 @@ struct tst_node **initialize_words(FILE * word_list, size_t workers)
 	return roots;
 }
 
+char * hangman_prompt(EditLine *e) {
+	(void) e;
+	return "Hangman string: ";
+}
+
+char * wrong_prompt(EditLine *e) {
+	(void) e;
+	return "Wrong letters: ";
+}
+
 int main(int argc, char **argv)
 {
 	FILE *word_list;
-	size_t i;
+	unsigned i;
+	int count;
 	int option;
 	struct tst_node **roots;
-	char *hangman;
-	char *wrong;
+	char hangman[MAX_STRING_SIZE];
+	char wrong[MAX_STRING_SIZE];
+	char const *hangman_buffer;
+	char const *wrong_buffer;
+	EditLine *hangman_line;
+	EditLine *wrong_line;
 
 	/* default arguments */
-	size_t workers = 1;
+	unsigned workers = 1;
 	char const *dict_path = "/usr/share/dict/words";
 
 	/* getting arguments */
@@ -159,23 +179,18 @@ int main(int argc, char **argv)
 
 		case 't':
 			/* getting number of worker threads */
-			if (!sscanf(optarg, "%zu", &workers) || !workers) {
-				fprintf(stderr, "Invalid number of worker threads: %s\n",
-				        optarg);
-
+			if ((count = atoi(optarg)) < 1) {
+				fprintf(stderr, INVALID_WORKERS, optarg);
 				return EXIT_FAILURE;
 			}
+			workers = count;
 			break;
-
 		case 'f':
 			dict_path = optarg;
 			break;
 
 		default:
-			fprintf(stderr,
-			        "usage: %s [-t worker_threads] [-f path_to_word_list]\n",
-			        argv[0]);
-
+			fprintf(stderr, USAGE, argv[0]);
 			return EXIT_FAILURE;
 		}
 	}
@@ -188,19 +203,31 @@ int main(int argc, char **argv)
 	roots = initialize_words(word_list, workers);
 	fclose(word_list);
 
+	/* initializing editlines */
+	hangman_line = el_init(argv[0], stdin, stdout, stderr);
+	el_set(hangman_line, EL_PROMPT, &hangman_prompt);
+	wrong_line = el_init(argv[0], stdin, stdout, stderr);
+	el_set(wrong_line, EL_PROMPT, &wrong_prompt);
+
 	/* user input loop */
-	while ((hangman = readline("Hangman string: ")) &&
-	       (wrong = readline("Wrong letters: "))) {
+	while ((hangman_buffer = el_gets(hangman_line, &count)) &&
+	       (wrong_buffer = el_gets(wrong_line, &count))) {
+
+		strcpy(hangman, hangman_buffer);
+		strcpy(wrong, wrong_buffer);
+
+		/* removing newline */
+		hangman[strcspn(hangman, "\n")] = '\0';
+		wrong[strcspn(wrong, "\n")] = '\0';
+
+		el_push(hangman_line, hangman);
+		el_push(wrong_line, wrong);
 
 		if (sanitized(hangman, WILDCARD_STR))
 			fork_search(roots, hangman, strlen(hangman), wrong, workers);
 		else
 			fprintf(stderr, "Invalid input!\n");
 
-		add_history(hangman);
-		add_history(wrong);
-		free(hangman);
-		free(wrong);
 		printf("\n\n");
 	}
 
@@ -211,7 +238,8 @@ int main(int argc, char **argv)
 		tst_destroy(roots[i], 1);
 
 	free(roots);
-	rl_clear_history();
+	el_end(hangman_line);
+	el_end(wrong_line);
 
 	return EXIT_SUCCESS;
 }

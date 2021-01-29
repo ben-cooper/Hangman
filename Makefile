@@ -1,6 +1,6 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -Werror --std=c89
-LFLAGS := -lreadline
+CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c89
+LFLAGS := -ledit
 
 STRUCT_OBJECTS := d_array.o tst.o common.o
 STRUCT_OBJECTS := $(addprefix obj/Structures/, $(STRUCT_OBJECTS))

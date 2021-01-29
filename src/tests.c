@@ -341,19 +341,6 @@ char *test_sanitized_bad_character()
 	return NULL;
 }
 
-char *test_sanitized_newline_character()
-{
-	char str[] = "\n";
-	int result = sanitized(str, "");
-
-	test_name = "sanitized newline character";
-
-	mu_assert("newline character passed", !result);
-	mu_assert("newline character not removed", str[0] == '\0');
-
-	return NULL;
-}
-
 char *test_sanitized_clean_string()
 {
 	test_name = "sanitized clean string";
@@ -371,33 +358,6 @@ char *test_sanitized_bad_string()
 	mu_assert("bad string passed", !sanitized("hello5", ""));
 	mu_assert("bad string passed with exception", !sanitized("hello5", "_"));
 	mu_assert("bad string failed with good exception", sanitized("hello5", "5"));
-
-	return NULL;
-}
-
-char *test_sanitized_clean_string_newline()
-{
-	char str[] = "testing\n";
-	int result = sanitized(str, "");
-
-	test_name = "sanitized clean string with newline";
-
-	mu_assert("clean string failed", result);
-	mu_assert("newline not removed", str[7] == '\0');
-
-	return NULL;
-}
-
-char *test_sanitized_bad_string_newline()
-{
-	char str[] = "test?ing\n";
-	int result1 = sanitized(str, "");
-	int result2 = sanitized(str, "?");
-
-	test_name = "sanitized bad string with newline";
-	mu_assert("bad string passed", !result1);
-	mu_assert("bad string failed with good exception", result2);
-	mu_assert("newline not removed", str[8] == '\0');
 
 	return NULL;
 }
@@ -420,11 +380,8 @@ char *all_tests()
 	mu_run_test(test_sanitized_empty_string);
 	mu_run_test(test_sanitized_clean_character);
 	mu_run_test(test_sanitized_bad_character);
-	mu_run_test(test_sanitized_newline_character);
 	mu_run_test(test_sanitized_clean_string);
 	mu_run_test(test_sanitized_bad_string);
-	mu_run_test(test_sanitized_clean_string_newline);
-	mu_run_test(test_sanitized_bad_string_newline);
 	return NULL;
 }
 

@@ -23,6 +23,6 @@ void shuffle(char **strs, size_t n);
  * @param str: the input string
  * @param exceptions: array of characters to ignore while sanitizing
  */
-int sanitized(char *str, char const * exceptions);
+int sanitized(char const *str, char const * exceptions);
 
 #endif
