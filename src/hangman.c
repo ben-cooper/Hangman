@@ -206,8 +206,10 @@ int main(int argc, char **argv)
 	/* initializing editlines */
 	hangman_line = el_init(argv[0], stdin, stdout, stderr);
 	el_set(hangman_line, EL_PROMPT, &hangman_prompt);
+	el_set(hangman_line, EL_EDITOR, "emacs");
 	wrong_line = el_init(argv[0], stdin, stdout, stderr);
 	el_set(wrong_line, EL_PROMPT, &wrong_prompt);
+	el_set(wrong_line, EL_EDITOR, "emacs");
 
 	/* user input loop */
 	while ((hangman_buffer = el_gets(hangman_line, &count)) &&
