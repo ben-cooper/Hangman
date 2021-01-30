@@ -30,7 +30,6 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 {
 	int fd[2];
 	unsigned i;
-	pid_t child;
 	char *word = NULL;
 	struct d_array *found_words = d_array_create(ARRAY_START_SIZE);
 
@@ -40,7 +39,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 	}
 
 	for (i = 0; i < workers; i++) {
-		switch (child = fork()) {
+		switch (fork()) {
 
 		/* failed */
 		case -1:

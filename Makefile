@@ -1,4 +1,4 @@
-CC := gcc
+CC := clang
 CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c89
 LFLAGS := -ledit
 
