@@ -1,4 +1,3 @@
-CC := clang
 CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c89
 LFLAGS := -ledit
 
@@ -8,16 +7,22 @@ STRUCT_OBJECTS := $(addprefix obj/Structures/, $(STRUCT_OBJECTS))
 MISC_OBJECTS := sanitize.o shuffle.o word_analyzer.o
 MISC_OBJECTS := $(addprefix obj/Misc/, $(MISC_OBJECTS))
 
-.PHONY: release debug tests clean
+ifeq ($(DEBUG),1)
+	CFLAGS += -g -Og
+else
+	ifeq ($(CC),clang)
+		CFLAGS += -Oz -flto=full -march=native
+		LFLAGS += -fuse-ld=lld -s
+	else
+		CFLAGS += -Os -fdata-sections -ffunction-sections
+		LFLAGS += -Wl,--gc-sections -s
+	endif
+endif
 
-release: CFLAGS += -O2 -fdata-sections -ffunction-sections
-release: LFLAGS += -Wl,--gc-sections -s
-release: bin/hangman
+.PHONY: hangman tests clean
 
-debug: CFLAGS += -g
-debug: bin/hangman
+hangman: bin/hangman
 
-tests: CFLAGS += -g
 tests: bin/tests
 
 bin/hangman: $(STRUCT_OBJECTS) $(MISC_OBJECTS) obj/hangman.o

@@ -6,10 +6,17 @@ letter in the possible solutions to provide the best guesses statistically.
 
 ## Compilation
 
-For normal usage: `make` or `make release`  
-For debugging: `make debug`  
+For normal usage: `make` or `make hangman`  
 For unit testing: `make tests`  
 To remove compiled files: `make clean`  
+
+Environment Variables:
+* CC: determines C compiler used and compiler specific optimizations
+* DEBUG: disables optimizations and includes debugging information when set to 1
+
+### Example
+
+`make CC=clang DEBUG=1 tests`
 
 ## Usage
 
@@ -25,7 +32,7 @@ dictionary (optional).  The default is the Unix word list using the path.
 During usage `CTRL-D` can be used to exit at either the hangman string prompt
 or the wrong letters prompt.
 
-## Examples
+### Example
 
 ```
 $ ./hangman
@@ -65,15 +72,15 @@ Tests run: 18
 For printing possible words, several constants can be altered in the file
 `d_array.h` to adjust the format, including:
 
-* Column limit (how many characters can be printed per line)
-* Row limit (how many lines of items can be printed.
+* `PRINT_COL_LIMIT`: how many characters can be printed per line
+* `PRINT_ROW_LIMIT`: how many lines of words can be printed
 
 For adjusting options that affect memory usage, constant can be found in
 `d_array.h` and `hangman.c`.  
 
-* Scaling factory for the dynamic array (d_array)
-* Array starting size for the dynamic array
-* Maximum string size
+* `SCALE`: the scaling factory for the dynamic array (d_array)
+* `ARRAY_START_SIZE`: the starting size for the dynamic array
+* `MAX_STRING_SIZE`: the maximum string size
 
 ## Dependencies
 
