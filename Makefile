@@ -12,7 +12,7 @@ ifeq ($(DEBUG),1)
 else
 	ifeq ($(CC),clang)
 		CFLAGS += -Oz -flto=full -march=native
-		LFLAGS += -fuse-ld=lld -s
+		LFLAGS += -fuse-ld=lld -rtlib=compiler-rt -s
 	else
 		CFLAGS += -Os -fdata-sections -ffunction-sections
 		LFLAGS += -Wl,--gc-sections -s
