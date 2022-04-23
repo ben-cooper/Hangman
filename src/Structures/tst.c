@@ -4,7 +4,7 @@
 #include "common.h"
 #include "tst.h"
 
-struct tst_node *tst_create(char *str, size_t idx, size_t len)
+struct tst_node *tst_create(char const *str, size_t idx, size_t len)
 {
 	struct tst_node *result = e_malloc(sizeof(struct tst_node));
 
@@ -15,17 +15,17 @@ struct tst_node *tst_create(char *str, size_t idx, size_t len)
 	/* if on the last character */
 	if ((len - idx) == 1) {
 		result->middle = NULL;
-		result->word = str;
+		result->is_word = 1;
 	} else {
 		/* recurse */
 		result->middle = tst_create(str, idx + 1, len);
-		result->word = NULL;
+		result->is_word = 0;
 	}
 
 	return result;
 }
 
-void tst_insert(struct tst_node *root, char *str, size_t idx, size_t len)
+void tst_insert(struct tst_node *root, char const *str, size_t idx, size_t len)
 {
 	if (str[idx] < root->chr) {
 		/* left subtree */
@@ -44,7 +44,7 @@ void tst_insert(struct tst_node *root, char *str, size_t idx, size_t len)
 	} else {
 		/* base case last character */
 		if ((len - idx) == 1) {
-			root->word = str;
+			root->is_word = 1;
 		} else {
 			/* middle subtree */
 			if (root->middle)
@@ -66,32 +66,35 @@ int tst_search(struct tst_node const *root, char const *str, size_t idx,
 	else if (str[idx] > root->chr)
 		return root->right && tst_search(root->right, str, idx, len);
 	else
-		return (((len - idx) == 1) && root->word) ||
+		return (((len - idx) == 1) && root->is_word) ||
 		       tst_search(root->middle, str, idx + 1, len);
 }
 
-void tst_pattern_search(struct tst_node * root, char const *pattern,
-                        size_t idx, size_t len, char const *wrong, int fd)
+void tst_pattern_search(struct tst_node const *root, char const *pattern,
+                        size_t idx, size_t len, char const *wrong, int fd,
+                        char *buffer)
 {
 	if (!root)
 		return;
 
 	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] < root->chr))
-		tst_pattern_search(root->left, pattern, idx, len, wrong, fd);
+		tst_pattern_search(root->left, pattern, idx, len, wrong, fd, buffer);
 
 	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] > root->chr))
-		tst_pattern_search(root->right, pattern, idx, len, wrong, fd);
+		tst_pattern_search(root->right, pattern, idx, len, wrong, fd, buffer);
 
 	if ((pattern[idx] == WILDCARD_CHR) &&
 		(strchr(wrong, root->chr) || strchr(pattern, root->chr)))
 		return;
 
 	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] == root->chr)) {
+		buffer[idx] = root->chr;
 		if ((len - idx) == 1) {
-			if (root->word)
-				e_write(fd, &(root->word), sizeof(root->word));
+			if (root->is_word)
+				e_write(fd, buffer, len);
+
 		} else {
-			tst_pattern_search(root->middle, pattern, idx + 1, len, wrong, fd);
+			tst_pattern_search(root->middle, pattern, idx + 1, len, wrong, fd, buffer);
 		}
 	}
 }
@@ -116,17 +119,14 @@ size_t tst_height(struct tst_node const *root)
 	return result;
 }
 
-void tst_destroy(struct tst_node *root, int destroy_str)
+void tst_destroy(struct tst_node *root)
 {
 	if (!root)
 		return;
 
-	tst_destroy(root->left, destroy_str);
-	tst_destroy(root->right, destroy_str);
-	tst_destroy(root->middle, destroy_str);
-
-	if (destroy_str)
-		free(root->word);
+	tst_destroy(root->left);
+	tst_destroy(root->right);
+	tst_destroy(root->middle);
 
 	free(root);
 }

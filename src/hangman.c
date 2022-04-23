@@ -30,7 +30,8 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 {
 	int fd[2];
 	unsigned i;
-	char *word = NULL;
+	char *word;
+	char tst_buffer[MAX_STRING_SIZE];
 	struct d_array *found_words = d_array_create(ARRAY_START_SIZE);
 
 	if (pipe(fd) == -1) {
@@ -49,9 +50,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 		/* child */
 		case 0:
 			close(fd[0]);
-			tst_pattern_search(roots[i], hangman, 0, len, wrong, fd[1]);
-			/* sending NULL to signal exit */
-			e_write(fd[1], &word, sizeof(word));
+			tst_pattern_search(roots[i], hangman, 0, len, wrong, fd[1], tst_buffer);
 			close(fd[1]);
 			exit(EXIT_SUCCESS);
 
@@ -61,16 +60,18 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 		}
 	}
 
-	/* parent reads until all children have sent NULL */
-	i = 0;
-	while (i < workers) {
-		e_read(fd[0], &word, sizeof(word));
+	close(fd[1]);
 
-		if (!word)
-			i++;
-		else
-			d_array_insert(found_words, word);
+	word = e_malloc(len+1);
+
+	while (read(fd[0], word, len) > 0) {
+		word[len] = '\0';
+		d_array_insert(found_words, word);
+		word = e_malloc(len+1);
 	}
+
+	close(fd[0]);
+	free(word);
 
 	if (found_words->elements == 0) {
 		printf("\nCould not find any possible words!");
@@ -82,7 +83,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 		print_probability(found_words->array, found_words->elements, hangman);
 	}
 
-	d_array_destroy(found_words, 0);
+	d_array_destroy(found_words, 1);
 }
 
 /**
@@ -138,7 +139,7 @@ struct tst_node **initialize_words(FILE * word_list, unsigned workers)
 		tst_insert(roots[i % workers], str, 0, len);
 	}
 
-	d_array_destroy(array, 0);
+	d_array_destroy(array, 1);
 
 	return roots;
 }
@@ -236,7 +237,7 @@ int main(int argc, char **argv)
 
 	/* freeing memory */
 	for (i = 0; i < workers; i++)
-		tst_destroy(roots[i], 1);
+		tst_destroy(roots[i]);
 
 	free(roots);
 	el_end(hangman_line);

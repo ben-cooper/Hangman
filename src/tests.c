@@ -29,7 +29,7 @@ char *test_tst_single_char_create()
 	mu_assert("wrong character not added", !tst_search(root, "b", 0, 1));
 	mu_assert("incorrect number of characters", tst_height(root) == 1);
 
-	tst_destroy(root, 0);
+	tst_destroy(root);
 
 	return NULL;
 }
@@ -46,7 +46,7 @@ char *test_tst_multi_char_create()
 	mu_assert("bad words added", !tst_search(root, "t", 0, 1));
 	mu_assert("incorrect number of characters", tst_height(root) == 3);
 
-	tst_destroy(root, 0);
+	tst_destroy(root);
 
 	return NULL;
 }
@@ -63,7 +63,7 @@ char *test_tst_new_word_insert()
 	mu_assert("old word affected", tst_search(root, "hello", 0, 5));
 	mu_assert("incorrect number of characters", tst_height(root) == 8);
 
-	tst_destroy(root, 0);
+	tst_destroy(root);
 
 	return NULL;
 }
@@ -81,7 +81,7 @@ char *test_tst_substring_insert()
 	mu_assert("incorrect word added", !tst_search(root, "he", 0, 5));
 	mu_assert("incorrect number of characters", tst_height(root) == 5);
 
-	tst_destroy(root, 0);
+	tst_destroy(root);
 
 	return NULL;
 }
@@ -99,7 +99,7 @@ char *test_tst_partial_substring_insert()
 	mu_assert("incorrect word added", !tst_search(root, "he", 0, 5));
 	mu_assert("incorrect number of characters", tst_height(root) == 7);
 
-	tst_destroy(root, 0);
+	tst_destroy(root);
 
 	return NULL;
 }
@@ -108,7 +108,8 @@ char *test_tst_single_char_pattern_search()
 {
 	struct tst_node *root;
 	int fd[2];
-	char *output;
+	char output[2] = { '\0' };
+	char buffer[1];
 
 	test_name = "tst single char pattern search";
 
@@ -116,14 +117,14 @@ char *test_tst_single_char_pattern_search()
 	root = tst_create("a", 0, 1);
 	tst_insert(root, "b", 0, 1);
 
-	tst_pattern_search(root, "-", 0, 1, "", fd[1]);
-	e_read(fd[0], &output, sizeof(output));
+	tst_pattern_search(root, "-", 0, 1, "", fd[1], buffer);
+	e_read(fd[0], output, 1);
 	mu_assert("first character not found", strcmp(output, "b") == 0);
 
-	e_read(fd[0], &output, sizeof(output));
+	e_read(fd[0], output, 1);
 	mu_assert("second character not found", strcmp(output, "a") == 0);
 
-	tst_destroy(root, 0);
+	tst_destroy(root);
 
 	close(fd[0]);
 	close(fd[1]);
@@ -135,8 +136,9 @@ char *test_tst_pattern_search_valid_string()
 {
 	struct tst_node *root;
 	int fd[2];
-	char *output1;
-	char *output2;
+	char output1[8] = { '\0' };
+	char output2[8] = { '\0' };
+	char buffer[7];
 	ssize_t nbytes;
 
 	test_name = "tst pattern search valid string";
@@ -147,9 +149,9 @@ char *test_tst_pattern_search_valid_string()
 	tst_insert(root, "resting", 0, 7);
 
 
-	tst_pattern_search(root, "-est", 0, 4, "", fd[1]);
-	e_read(fd[0], &output1, sizeof(output1));
-	e_read(fd[0], &output2, sizeof(output2));
+	tst_pattern_search(root, "-est", 0, 4, "", fd[1], buffer);
+	e_read(fd[0], output1, 4);
+	e_read(fd[0], output2, 4);
 
 	mu_assert("valid strings not found",
 	          ((strcmp(output1, "best") == 0) && (strcmp(output2, "rest") == 0)) ||
@@ -158,10 +160,10 @@ char *test_tst_pattern_search_valid_string()
 	/* non blocking read to check empty pipe */
 	fcntl(fd[0], F_SETFL, O_NONBLOCK);
 
-	nbytes = read(fd[0], &output1, sizeof(output1));
+	nbytes = read(fd[0], output1, 7);
 	mu_assert("extra string added", (nbytes == -1) && (errno == EAGAIN));
 
-	tst_destroy(root, 0);
+	tst_destroy(root);
 
 	close(fd[0]);
 	close(fd[1]);
@@ -173,7 +175,8 @@ char *test_tst_pattern_search_invalid_string()
 {
 	struct tst_node *root;
 	int fd[2];
-	char *output;
+	char output[8] = { '\0' };
+	char buffer[7];
 	ssize_t nbytes;
 
 	test_name = "tst pattern search valid string";
@@ -183,15 +186,15 @@ char *test_tst_pattern_search_invalid_string()
 	tst_insert(root, "rest", 0, 4);
 	tst_insert(root, "resting", 0, 7);
 
-	tst_pattern_search(root, "-est-", 0, 5, "", fd[1]);
+	tst_pattern_search(root, "-est-", 0, 5, "", fd[1], buffer);
 
 	/* non blocking read to check empty pipe */
 	fcntl(fd[0], F_SETFL, O_NONBLOCK);
 
-	nbytes = read(fd[0], &output, sizeof(output));
+	nbytes = read(fd[0], output, 8);
 	mu_assert("string found", (nbytes == -1) && (errno == EAGAIN));
 
-	tst_destroy(root, 0);
+	tst_destroy(root);
 
 	close(fd[0]);
 	close(fd[1]);
@@ -203,8 +206,9 @@ char *test_tst_pattern_search_duplicate_unknown_letter()
 {
 	struct tst_node *root;
 	int fd[2];
-	char *output1;
-	char *output2;
+	char output1[7] = { '\0' };
+	char output2[7] = { '\0' };
+	char buffer[6];
 	ssize_t nbytes;
 
 	test_name = "tst pattern search duplicate unknown letter";
@@ -214,10 +218,10 @@ char *test_tst_pattern_search_duplicate_unknown_letter()
 	tst_insert(root, "better", 0, 6);
 	tst_insert(root, "butter", 0, 6);
 
-	tst_pattern_search(root, "b-tter", 0, 6, "", fd[1]);
+	tst_pattern_search(root, "b-tter", 0, 6, "", fd[1], buffer);
 
-	e_read(fd[0], &output1, sizeof(output1));
-	e_read(fd[0], &output2, sizeof(output2));
+	e_read(fd[0], output1, 6);
+	e_read(fd[0], output2, 6);
 
 	mu_assert("valid strings not found",
 	          ((strcmp(output1, "bitter") == 0) && (strcmp(output2, "butter") == 0)) ||
@@ -229,7 +233,7 @@ char *test_tst_pattern_search_duplicate_unknown_letter()
 	nbytes = read(fd[0], &output1, sizeof(output1));
 	mu_assert("extra string added", (nbytes == -1) && (errno == EAGAIN));
 
-	tst_destroy(root, 0);
+	tst_destroy(root);
 
 	close(fd[0]);
 	close(fd[1]);
@@ -382,6 +386,7 @@ char *all_tests()
 	mu_run_test(test_sanitized_bad_character);
 	mu_run_test(test_sanitized_clean_string);
 	mu_run_test(test_sanitized_bad_string);
+
 	return NULL;
 }
 
