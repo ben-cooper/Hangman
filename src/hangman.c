@@ -102,17 +102,16 @@ struct tst_node **initialize_words(FILE * word_list, unsigned workers)
 	struct tst_node **roots;
 
 	while (fgets(str_buffer, MAX_STRING_SIZE, word_list)) {
-
-		str = e_malloc(MAX_STRING_SIZE * sizeof(char));
-		strcpy(str, str_buffer);
+		len = strcspn(str_buffer, "\n");
 
 		/* removing newline */
-		str[strcspn(str, "\n")] = '\0';
+		str_buffer[len] = '\0';
 
-		if (sanitized(str, ""))
+		if (sanitized(str_buffer, "")) {
+			str = e_malloc(len + 1);
+			strcpy(str, str_buffer);
 			d_array_insert(array, str);
-		else
-			free(str);
+		}
 	}
 
 	if (array->elements < workers) {
