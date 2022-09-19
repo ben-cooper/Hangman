@@ -6,9 +6,9 @@ letter in the possible solutions to provide the best guesses statistically.
 
 ## Compilation
 
-For normal usage: `make` or `make hangman`  
-For unit testing: `make tests`  
-To remove compiled files: `make clean`  
+For normal usage: `make` or `make hangman`
+For unit testing: `make tests`
+To remove compiled files: `make clean`
 
 Environment Variables:
 * CC: determines C compiler used and compiler specific optimizations
@@ -20,14 +20,14 @@ Environment Variables:
 
 ## Usage
 
-`usage: ./hangman [-t worker_threads]  [-f path_to_word_list]`  
+`usage: ./hangman [-t worker_threads]  [-f path_to_word_list]`
 
 `workers` specifies the number of workers threads (actually forks) used to
-search the dictionary.  
+search the dictionary.
 
 `path_to_word_list` specifies the path to an alternative word list or
 dictionary (optional).  The default is the Unix word list using the path.
-`/usr/share/dict/words`  
+`/usr/share/dict/words`
 
 During usage `CTRL-D` can be used to exit at either the hangman string prompt
 or the wrong letters prompt.
@@ -40,14 +40,14 @@ Hangman string: -o--u-e-
 Wrong letters: ai
 
 Possible words:
-fortunes  colluded  colludes  colluder  commuted  commutes  commuter  communes  
-communed  computed  computes  computer  costumed  costumes  costumer  cornuted  
-corpuses  conduced  conduces  confused  confuses  confuted  confuter  confutes  
-conjures  conjurer  conjured  consumed  consumes  consumer  contused  contuses  
-tonsured  tonsures  tortured  tortures  torturer  postures  posturer  postured  
-pollutes  polluter  polluted  
+fortunes  colluded  colludes  colluder  commuted  commutes  commuter  communes
+communed  computed  computes  computer  costumed  costumes  costumer  cornuted
+corpuses  conduced  conduces  confused  confuses  confuted  confuter  confutes
+conjures  conjurer  conjured  consumed  consumes  consumer  contused  contuses
+tonsured  tonsures  tortured  tortures  torturer  postures  posturer  postured
+pollutes  polluter  polluted
 
-Words found: 43
+Word(s) found: 43
 
 Letter probabilities:
 Letter: c	Chance: 72.09%
@@ -64,22 +64,20 @@ Letter: j	Chance: 6.98%
 
 $ ./tests
 All tests passed!
-Tests run: 18
+Tests run: 14
 ```
 
 ## Configuration
 
 For printing possible words, several constants can be altered in the file
-`d_array.h` to adjust the format, including:
+`word_utilities.h` to adjust the format, including:
 
 * `PRINT_COL_LIMIT`: how many characters can be printed per line
 * `PRINT_ROW_LIMIT`: how many lines of words can be printed
 
-For adjusting options that affect memory usage, constant can be found in
-`d_array.h` and `hangman.c`.  
+For adjusting options that affect memory usage, constant(s) can be found in
+`hangman.c`.
 
-* `SCALE`: the scaling factory for the dynamic array (d_array)
-* `ARRAY_START_SIZE`: the starting size for the dynamic array
 * `MAX_STRING_SIZE`: the maximum string size
 
 ## Dependencies

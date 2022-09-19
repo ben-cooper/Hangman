@@ -4,10 +4,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
-#include "Structures/common.h"
-#include "Structures/d_array.h"
-#include "Structures/tst.h"
-#include "Misc/misc.h"
+#include "word_utilities.h"
+#include "common.h"
+#include "tst.h"
 
 /* minunit code */
 #define mu_assert(message, test) do { if (!(test)) return message; } while (0)
@@ -241,79 +240,6 @@ char *test_tst_pattern_search_duplicate_unknown_letter()
 	return NULL;
 }
 
-/* dynamic array tests */
-char *test_array_creation()
-{
-	struct d_array *array;
-	test_name = "array creation";
-
-	array = d_array_create(5);
-
-	mu_assert("incorrect elements", array->elements == 0);
-	mu_assert("incorrect capacity", array->capacity == 5);
-
-	d_array_destroy(array, 0);
-
-	return NULL;
-}
-
-char *test_array_normal_insert()
-{
-	struct d_array *array;
-	test_name = "array normal insert";
-
-	array = d_array_create(5);
-
-	d_array_insert(array, "testing1");
-	mu_assert("size not updated", array->elements == 1);
-	mu_assert("incorrect capacity", array->capacity == 5);
-	mu_assert("element not added", strcmp(array->array[0], "testing1") == 0);
-
-	d_array_destroy(array, 0);
-
-	return NULL;
-}
-
-char *test_array_multiple_insert()
-{
-	struct d_array *array;
-	test_name = "array multiple insert";
-
-	array = d_array_create(5);
-
-	d_array_insert(array, "testing1");
-	d_array_insert(array, "testing2");
-	mu_assert("size not updated", array->elements == 2);
-	mu_assert("capacity incorrect", array->capacity == 5);
-	mu_assert("element not added", strcmp(array->array[0], "testing1") == 0);
-	mu_assert("element not added", strcmp(array->array[1], "testing2") == 0);
-
-	d_array_destroy(array, 0);
-
-	return NULL;
-}
-
-char *test_array_insert_expansion()
-{
-	struct d_array *array;
-	test_name = "array insert expansion";
-
-	array = d_array_create(2);
-
-	d_array_insert(array, "testing1");
-	d_array_insert(array, "testing2");
-	d_array_insert(array, "testing3");
-	mu_assert("size not updated", array->elements == 3);
-	mu_assert("capacity incorrect", array->capacity == 2 * SCALE);
-	mu_assert("element not added", strcmp(array->array[0], "testing1") == 0);
-	mu_assert("element not added", strcmp(array->array[1], "testing2") == 0);
-	mu_assert("element not added", strcmp(array->array[2], "testing3") == 0);
-
-	d_array_destroy(array, 0);
-
-	return NULL;
-}
-
 /* sanitized tests */
 char *test_sanitized_empty_string()
 {
@@ -377,10 +303,6 @@ char *all_tests()
 	mu_run_test(test_tst_pattern_search_valid_string);
 	mu_run_test(test_tst_pattern_search_invalid_string);
 	mu_run_test(test_tst_pattern_search_duplicate_unknown_letter);
-	mu_run_test(test_array_creation);
-	mu_run_test(test_array_normal_insert);
-	mu_run_test(test_array_multiple_insert);
-	mu_run_test(test_array_insert_expansion);
 	mu_run_test(test_sanitized_empty_string);
 	mu_run_test(test_sanitized_clean_character);
 	mu_run_test(test_sanitized_bad_character);

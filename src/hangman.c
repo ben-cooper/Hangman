@@ -5,13 +5,11 @@
 #include <sys/types.h>
 #include <string.h>
 #include <histedit.h>
-#include "Misc/misc.h"
-#include "Structures/common.h"
-#include "Structures/d_array.h"
-#include "Structures/tst.h"
+#include "word_utilities.h"
+#include "common.h"
+#include "tst.h"
 
 #define MAX_STRING_SIZE 100
-#define ARRAY_START_SIZE 100
 
 #define USAGE "usage: %s [-t worker_threads] [-f path_to_word_list]\n"
 #define INVALID_WORKERS "Invalid number of worker threads: %s\n"
@@ -30,9 +28,11 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 {
 	int fd[2];
 	unsigned i;
-	char *word;
+	char word[MAX_STRING_SIZE];
 	char tst_buffer[MAX_STRING_SIZE];
-	struct d_array *found_words = d_array_create(ARRAY_START_SIZE);
+
+	int limit_reached = 0;
+	size_t num_words = 0;
 
 	if (pipe(fd) == -1) {
 		perror("pipe");
@@ -62,28 +62,29 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 
 	close(fd[1]);
 
-	word = e_malloc(len+1);
+	printf("\nPossible word(s):\n");
 
 	while (read(fd[0], word, len) > 0) {
 		word[len] = '\0';
-		d_array_insert(found_words, word);
-		word = e_malloc(len+1);
+		process_word(word, len);
+		num_words++;
+
+		if (!limit_reached)
+			limit_reached = print_next_word(word, len);
 	}
+
+	if (limit_reached)
+		printf("\nPrint Limit reached!");
 
 	close(fd[0]);
-	free(word);
 
-	if (found_words->elements == 0) {
+	if (num_words == 0) {
 		printf("\nCould not find any possible words!");
 	} else {
-		printf("\nPossible words:\n");
-		d_array_print(found_words);
-		printf("\nWords found: %lu\n", (unsigned long) found_words->elements);
+		printf("\n\nWords found: %lu\n", num_words);
 		printf("\nLetter probabilities:\n");
-		print_probability(found_words->array, found_words->elements, hangman);
+		print_probability(num_words, hangman);
 	}
-
-	d_array_destroy(found_words, 1);
 }
 
 /**
@@ -96,49 +97,71 @@ struct tst_node **initialize_words(FILE * word_list, unsigned workers)
 {
 	size_t len;
 	size_t i;
+	size_t words = 0;
 	char *str;
-	char str_buffer[MAX_STRING_SIZE];
-	struct d_array *array = d_array_create(ARRAY_START_SIZE);
+	char *file_buffer;
+	char **array;
 	struct tst_node **roots;
 
-	while (fgets(str_buffer, MAX_STRING_SIZE, word_list)) {
-		len = strcspn(str_buffer, "\n");
+	/* getting length of file */
+	fseek(word_list, 0, SEEK_END);
+	len = ftell(word_list);
+	rewind(word_list);
 
-		/* removing newline */
-		str_buffer[len] = '\0';
+	/* reading file */
+	file_buffer = e_malloc(len+1);
+	fread(file_buffer, 1, len, word_list);
+	file_buffer[len] = '\0';
 
-		if (sanitized(str_buffer, "")) {
-			str = e_malloc(len + 1);
-			strcpy(str, str_buffer);
-			d_array_insert(array, str);
+	/* counting newlines */
+	for (i = 0; i < len; i++)
+		if (file_buffer[i] == '\n')
+			words++;
+
+	/* tokenizing */
+	array = e_malloc(words * sizeof(char *));
+	i = 0;
+
+	str = strtok(file_buffer, "\n");
+	while (str)
+	{
+		if (sanitized(str, "")) {
+			array[i] = str;
+			i++;
 		}
+
+		str = strtok(NULL, "\n");
 	}
 
-	if (array->elements < workers) {
+	if (i != words)
+		printf("%lu word(s) not added.\n", words - i);
+
+	words = i;
+
+	if (words < workers) {
 		fprintf(stderr, "Not enough words for number of threads.\n");
 		exit(EXIT_FAILURE);
 	}
 
-	shuffle(array->array, array->elements);
+	shuffle(array, words);
 
 	/* initializing ternary search trees */
 	roots = e_malloc(workers * sizeof(struct tst_node *));
 
 	for (i = 0; i < workers; i++) {
-		str = array->array[i];
-		len = strlen(str);
-		roots[i] = tst_create(str, 0, len);
+		len = strlen(array[i]);
+		roots[i] = tst_create(array[i], 0, len);
 	}
 
 	/* separating array into separate ternary search trees
 	   starting after the first words used to initialize the tst's */
-	for (i = workers; i < array->elements; i++) {
-		str = array->array[i];
-		len = strlen(str);
-		tst_insert(roots[i % workers], str, 0, len);
+	for (i = workers; i < words; i++) {
+		len = strlen(array[i]);
+		tst_insert(roots[i % workers], array[i], 0, len);
 	}
 
-	d_array_destroy(array, 1);
+	free(file_buffer);
+	free(array);
 
 	return roots;
 }
