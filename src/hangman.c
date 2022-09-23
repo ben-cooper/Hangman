@@ -118,6 +118,10 @@ struct tst_node **initialize_words(FILE * word_list, unsigned workers)
 		if (file_buffer[i] == '\n')
 			words++;
 
+	/* check if file ends with newline */
+	if (file_buffer[i - 1] != '\n')
+		words++;
+
 	/* tokenizing */
 	array = e_malloc(words * sizeof(char *));
 	i = 0;
@@ -247,7 +251,7 @@ int main(int argc, char **argv)
 		el_push(hangman_line, hangman);
 		el_push(wrong_line, wrong);
 
-		if (sanitized(hangman, WILDCARD_STR))
+		if (sanitized(hangman, WILDCARD_STR) && sanitized(wrong, ""))
 			fork_search(roots, hangman, strlen(hangman), wrong, workers);
 		else
 			fprintf(stderr, "Invalid input!\n");

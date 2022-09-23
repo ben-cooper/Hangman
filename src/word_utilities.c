@@ -111,9 +111,8 @@ int sanitized(char const *str, char const *except)
 	size_t i;
 	size_t len = strlen(str);
 
-	/* empty strings are not valid */
 	if (!len)
-		return 0;
+		return 1;
 
 	for (i = 0; i < len; i++)
 		if (!((isalpha(str[i]) && islower(str[i])) ||(strchr(except, str[i]))))
