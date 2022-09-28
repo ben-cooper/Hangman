@@ -75,11 +75,13 @@ For printing possible words, several constants can be altered in the file
 * `PRINT_COL_LIMIT`: how many characters can be printed per line
 * `PRINT_ROW_LIMIT`: how many lines of words can be printed
 
-For adjusting options that affect memory usage, constant(s) can be found in
-`hangman.c`.
+For other compile-time options that affect system usage, constant(s) can be
+found in `hangman.c`.
 
-* `MAX_STRING_SIZE`: the maximum string size
+* `MAX_STRING_SIZE`: the maximum number of characters in a word
+* `DEFAULT_WORKERS`: the default number of child processes to use (must be >0)
+* `DEFAULT_DICTIONARY`: the default path to the word list
 
 ## Dependencies
 
-* libedit (development files)
+* [libedit](https://man.netbsd.org/editline.3)
