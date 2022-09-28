@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include "common.h"
 
 void *e_malloc(size_t size)
@@ -15,33 +16,31 @@ void *e_malloc(size_t size)
 	return result;
 }
 
-void *e_calloc(size_t nmemb, size_t size)
+int e_open(const char *pathname, int flags)
 {
-	void *result = calloc(nmemb, size);
+	int fd;
 
-	if (!result) {
-		perror("calloc");
+	if ((fd = open(pathname, flags)) == -1)
+	{
+		perror("open");
 		exit(EXIT_FAILURE);
 	}
 
-	return result;
+	return fd;
 }
 
-void *e_realloc(void *ptr, size_t size)
+void e_close(int fd)
 {
-	void *result = realloc(ptr, size);
-
-	if (!result) {
-		perror("realloc");
+	if (close(fd) == -1)
+	{
+		perror("close");
 		exit(EXIT_FAILURE);
 	}
-
-	return result;
 }
 
 void e_read(int fd, void *buf, size_t count)
 {
-	if (read(fd, buf, count) == -1) {
+	if (read(fd, buf, count) == -1)	{
 		perror("read");
 		exit(EXIT_FAILURE);
 	}
@@ -51,6 +50,34 @@ void e_write(int fd, const void *buf, size_t count)
 {
 	if (write(fd, buf, count) == -1) {
 		perror("write");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void e_pipe(int pipefd[2])
+{
+	if (pipe(pipefd) == -1) {
+		perror("pipe");
+		exit(EXIT_FAILURE);
+	}
+}
+
+off_t end_lseek(int fd)
+{
+	off_t result;
+
+	if ((result = lseek(fd, 0, SEEK_END)) == -1) {
+		perror("lseek");
+		exit(EXIT_FAILURE);
+	}
+
+	return result;
+}
+
+void start_lseek(int fd)
+{
+	if (lseek(fd, 0, SEEK_SET) == -1) {
+		perror("lseek");
 		exit(EXIT_FAILURE);
 	}
 }

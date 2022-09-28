@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <getopt.h>
 #include <sys/types.h>
 #include <string.h>
@@ -10,6 +11,9 @@
 #include "tst.h"
 
 #define MAX_STRING_SIZE 100
+
+#define DEFAULT_WORKERS 1
+#define DEFAULT_DICTIONARY "/usr/share/dict/words"
 
 #define USAGE "usage: %s [-t worker_threads] [-f path_to_word_list]\n"
 #define INVALID_WORKERS "Invalid number of worker threads: %s\n"
@@ -24,20 +28,17 @@
  * @param workers: the number of child processes to create
  */
 void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
-                 char const *wrong, unsigned workers)
+                 char const *wrong, unsigned long workers)
 {
 	int fd[2];
-	unsigned i;
+	unsigned long i;
 	char word[MAX_STRING_SIZE];
 	char tst_buffer[MAX_STRING_SIZE];
 
 	int limit_reached = 0;
 	size_t num_words = 0;
 
-	if (pipe(fd) == -1) {
-		perror("pipe");
-		exit(EXIT_FAILURE);
-	}
+	e_pipe(fd);
 
 	for (i = 0; i < workers; i++) {
 		switch (fork()) {
@@ -49,9 +50,9 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 
 		/* child */
 		case 0:
-			close(fd[0]);
+			e_close(fd[0]);
 			tst_pattern_search(roots[i], hangman, 0, len, wrong, fd[1], tst_buffer);
-			close(fd[1]);
+			e_close(fd[1]);
 			exit(EXIT_SUCCESS);
 
 		/* parent */
@@ -60,7 +61,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 		}
 	}
 
-	close(fd[1]);
+	e_close(fd[1]);
 
 	printf("\nPossible word(s):\n");
 
@@ -76,7 +77,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 	if (limit_reached)
 		printf("\nPrint Limit reached!");
 
-	close(fd[0]);
+	e_close(fd[0]);
 
 	if (num_words == 0) {
 		printf("\nCould not find any possible words!");
@@ -93,7 +94,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
  * @param word_list: file descriptor to read
  * @param workers: the number of child processes to be created
  */
-struct tst_node **initialize_words(FILE * word_list, unsigned workers)
+struct tst_node **initialize_words(int word_list, unsigned long workers)
 {
 	size_t len;
 	size_t i;
@@ -104,13 +105,12 @@ struct tst_node **initialize_words(FILE * word_list, unsigned workers)
 	struct tst_node **roots;
 
 	/* getting length of file */
-	fseek(word_list, 0, SEEK_END);
-	len = ftell(word_list);
-	rewind(word_list);
+	len = end_lseek(word_list);
+	start_lseek(word_list);
 
 	/* reading file */
 	file_buffer = e_malloc(len+1);
-	fread(file_buffer, 1, len, word_list);
+	e_read(word_list, file_buffer, len);
 	file_buffer[len] = '\0';
 
 	/* counting newlines */
@@ -182,21 +182,22 @@ char * wrong_prompt(EditLine *e) {
 
 int main(int argc, char **argv)
 {
-	FILE *word_list;
-	unsigned i;
-	int count;
+	long input;
 	int option;
+	int word_list;
 	struct tst_node **roots;
+	char *endptr;
 	char hangman[MAX_STRING_SIZE];
 	char wrong[MAX_STRING_SIZE];
 	char const *hangman_buffer;
 	char const *wrong_buffer;
+	unsigned long i;
 	EditLine *hangman_line;
 	EditLine *wrong_line;
 
 	/* default arguments */
-	unsigned workers = 1;
-	char const *dict_path = "/usr/share/dict/words";
+	unsigned long workers = DEFAULT_WORKERS;
+	char const *dict_path = DEFAULT_DICTIONARY;
 
 	/* getting arguments */
 	while ((option = getopt(argc, argv, "t:f:h")) != -1) {
@@ -205,11 +206,13 @@ int main(int argc, char **argv)
 
 		case 't':
 			/* getting number of worker threads */
-			if ((count = atoi(optarg)) < 1) {
+			input = strtol(optarg, &endptr, 10);
+			if ((input < 1) || (*endptr != '\0')) {
 				fprintf(stderr, INVALID_WORKERS, optarg);
 				return EXIT_FAILURE;
 			}
-			workers = count;
+
+			workers = input;
 			break;
 		case 'f':
 			dict_path = optarg;
@@ -221,13 +224,10 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (!(word_list = fopen(dict_path, "r"))) {
-		perror("fopen");
-		return EXIT_FAILURE;
-	}
-
+	/* reading dictionary */
+	word_list = e_open(dict_path, O_RDONLY);
 	roots = initialize_words(word_list, workers);
-	fclose(word_list);
+	e_close(word_list);
 
 	/* initializing editlines */
 	hangman_line = el_init(argv[0], stdin, stdout, stderr);
@@ -238,8 +238,8 @@ int main(int argc, char **argv)
 	el_set(wrong_line, EL_EDITOR, "emacs");
 
 	/* user input loop */
-	while ((hangman_buffer = el_gets(hangman_line, &count)) &&
-	       (wrong_buffer = el_gets(wrong_line, &count))) {
+	while ((hangman_buffer = el_gets(hangman_line, &option)) &&
+	       (wrong_buffer = el_gets(wrong_line, &option))) {
 
 		strcpy(hangman, hangman_buffer);
 		strcpy(wrong, wrong_buffer);
