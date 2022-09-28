@@ -245,8 +245,8 @@ char *test_sanitized_empty_string()
 {
 	test_name = "sanitized empty string";
 
-	mu_assert("empty string passed", !sanitized("", ""));
-	mu_assert("empty string passed with exception", !sanitized("", "_"));
+	mu_assert("empty string failed", sanitized("", ""));
+	mu_assert("empty string failed with exception", sanitized("", "_"));
 
 	return NULL;
 }
