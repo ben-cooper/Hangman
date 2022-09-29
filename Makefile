@@ -16,6 +16,10 @@ else
 	endif
 endif
 
+ifeq ($(STATIC),1)
+	LFLAGS += -lncurses -static
+endif
+
 .PHONY: hangman tests clean
 
 hangman: bin/hangman

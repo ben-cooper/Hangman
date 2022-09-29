@@ -1,8 +1,8 @@
 # Hangman
 
-A small program to assist in the solving of hangman puzzles.  This program
-can list all possible solutions (if any) and provide the frequency of each
-letter in the possible solutions to provide the best guesses statistically.
+A small program to assist in solving hangman puzzles.  This program can
+list all possible words (if any) and provide the frequency of each letter
+in the list possible words to provide the best guesses statistically.
 
 ## Compilation
 
@@ -13,20 +13,22 @@ To remove compiled files: `make clean`
 Environment Variables:
 * CC: determines C compiler used and compiler specific optimizations
 * DEBUG: disables optimizations and includes debugging information when set to 1
+* STATIC: statically links dependencies into the binary
 
-### Example
+### Examples
 
-`make CC=clang DEBUG=1 tests`
+* `make CC=gcc DEBUG=1 tests`
+* `make CC=clang STATIC=1`
 
 ## Usage
 
-`usage: ./hangman [-t worker_threads]  [-f path_to_word_list]`
+`usage: ./hangman [-t worker-threads]  [-f path_to_word_list]`
 
-`workers` specifies the number of workers threads (actually forks) used to
-search the dictionary.
+`worker_threads` (optional) specifies the number of child processes used to
+search the dictionary.  The default is `1`.
 
-`path_to_word_list` specifies the path to an alternative word list or
-dictionary (optional).  The default is the Unix word list using the path.
+`path_to_word_list` (optional) specifies the path to an alternative word list
+or dictionary.  The default is the Unix word list using the path.
 `/usr/share/dict/words`
 
 During usage `CTRL-D` can be used to exit at either the hangman string prompt
@@ -35,7 +37,7 @@ or the wrong letters prompt.
 ### Example
 
 ```
-$ ./hangman
+$ ./hangman -t 4
 Hangman string: -o--u-e-
 Wrong letters: ai
 
@@ -75,7 +77,7 @@ For printing possible words, several constants can be altered in the file
 * `PRINT_COL_LIMIT`: how many characters can be printed per line
 * `PRINT_ROW_LIMIT`: how many lines of words can be printed
 
-For other compile-time options that affect system usage, constant(s) can be
+For other compile-time options that affect system usage, constants can be
 found in `hangman.c`.
 
 * `MAX_STRING_SIZE`: the maximum number of characters in a word
