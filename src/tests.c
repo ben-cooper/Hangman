@@ -112,7 +112,7 @@ char *test_tst_single_char_pattern_search()
 
 	test_name = "tst single char pattern search";
 
-	pipe(fd);
+	e_pipe(fd);
 	root = tst_create("a", 0, 1);
 	tst_insert(root, "b", 0, 1);
 
@@ -125,8 +125,8 @@ char *test_tst_single_char_pattern_search()
 
 	tst_destroy(root);
 
-	close(fd[0]);
-	close(fd[1]);
+	e_close(fd[0]);
+	e_close(fd[1]);
 
 	return NULL;
 }
@@ -142,7 +142,7 @@ char *test_tst_pattern_search_valid_string()
 
 	test_name = "tst pattern search valid string";
 
-	pipe(fd);
+	e_pipe(fd);
 	root = tst_create("best", 0, 4);
 	tst_insert(root, "rest", 0, 4);
 	tst_insert(root, "resting", 0, 7);
@@ -164,8 +164,8 @@ char *test_tst_pattern_search_valid_string()
 
 	tst_destroy(root);
 
-	close(fd[0]);
-	close(fd[1]);
+	e_close(fd[0]);
+	e_close(fd[1]);
 
 	return NULL;
 }
@@ -180,7 +180,7 @@ char *test_tst_pattern_search_invalid_string()
 
 	test_name = "tst pattern search valid string";
 
-	pipe(fd);
+	e_pipe(fd);
 	root = tst_create("best", 0, 4);
 	tst_insert(root, "rest", 0, 4);
 	tst_insert(root, "resting", 0, 7);
@@ -195,8 +195,8 @@ char *test_tst_pattern_search_invalid_string()
 
 	tst_destroy(root);
 
-	close(fd[0]);
-	close(fd[1]);
+	e_close(fd[0]);
+	e_close(fd[1]);
 
 	return NULL;
 }
@@ -212,7 +212,7 @@ char *test_tst_pattern_search_duplicate_unknown_letter()
 
 	test_name = "tst pattern search duplicate unknown letter";
 
-	pipe(fd);
+	e_pipe(fd);
 	root = tst_create("bitter", 0, 6);
 	tst_insert(root, "better", 0, 6);
 	tst_insert(root, "butter", 0, 6);
@@ -234,8 +234,8 @@ char *test_tst_pattern_search_duplicate_unknown_letter()
 
 	tst_destroy(root);
 
-	close(fd[0]);
-	close(fd[1]);
+	e_close(fd[0]);
+	e_close(fd[1]);
 
 	return NULL;
 }
