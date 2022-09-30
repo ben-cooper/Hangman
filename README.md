@@ -6,14 +6,22 @@ in the list possible words to provide the best guesses statistically.
 
 ## Compilation
 
-For normal usage: `make` or `make hangman`
-For unit testing: `make tests`
-To remove compiled files: `make clean`
+For normal usage:
+
+`make` or `make hangman`
+
+For unit testing:
+
+`make tests`
+
+To remove compiled files:
+
+`make clean`
 
 Environment Variables:
-* CC: determines C compiler used and compiler specific optimizations
-* DEBUG: disables optimizations and includes debugging information when set to 1
-* STATIC: statically links dependencies into the binary
+* `CC`: determines C compiler used and compiler specific optimizations
+* `DEBUG`: disables optimizations and includes debugging information when set to 1
+* `STATIC`: statically links dependencies into the binary
 
 ### Examples
 
