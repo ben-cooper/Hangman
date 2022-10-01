@@ -17,7 +17,20 @@ void process_word(char const *word, size_t len);
  * @param n: the length of the array
  * @param exceptions: array of characters to exclude
  */
-void print_probability(size_t words, char const *exceptions);
+void print_probability(char const *exceptions);
+
+/**
+  * Resets current print row and column back to zero
+  */
+void reset_word_position();
+
+/**
+ * Prints words in a rectangular pattern defined by PRINT_ROW_LIMIT and
+ * PRINT_COL_LIMIT
+ * @param word: the word to be printed
+ * @param len: the length of the word
+ */
+void print_next_word(char const *word, size_t len);
 
 /**
  * Randomizes the string in the array (fisher-yates shuffle)
@@ -32,14 +45,5 @@ void shuffle(char **strs, size_t n);
  * @param exceptions: array of characters to ignore while sanitizing
  */
 int sanitized(char const *str, char const *exceptions);
-
-/**
- * Prints words in a rectangular pattern defined by PRINT_ROW_LIMIT and
- * PRINT_COL_LIMIT
- * @param word: the word to be printed
- * @param len: the length of the word
- * @return 1 if print limit has been reached, 0 otherwise
- */
-int print_next_word(char const *word, size_t len);
 
 #endif

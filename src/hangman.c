@@ -35,9 +35,6 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 	char word[MAX_STRING_SIZE];
 	char tst_buffer[MAX_STRING_SIZE];
 
-	int limit_reached = 0;
-	size_t num_words = 0;
-
 	e_pipe(fd);
 
 	for (i = 0; i < workers; i++) {
@@ -68,24 +65,15 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 	while (read(fd[0], word, len) > 0) {
 		word[len] = '\0';
 		process_word(word, len);
-		num_words++;
-
-		if (!limit_reached)
-			limit_reached = print_next_word(word, len);
+		print_next_word(word, len);
 	}
 
-	if (limit_reached)
-		printf("\nPrint Limit reached!");
+	reset_word_position();
 
 	e_close(fd[0]);
 
-	if (num_words == 0) {
-		printf("\nCould not find any possible words!");
-	} else {
-		printf("\n\nWords found: %lu\n", num_words);
-		printf("\nLetter probabilities:\n");
-		print_probability(num_words, hangman);
-	}
+	printf("\n\n");
+	print_probability(hangman);
 }
 
 /**

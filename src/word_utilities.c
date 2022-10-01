@@ -11,7 +11,13 @@
 #define DELIM "  "
 #define DELIM_LENGTH 2
 
-static int word_count[26];
+static size_t letter_count[26];
+static size_t word_count = 0;
+
+static size_t col = 0;
+static size_t row = 0;
+
+static int print_limit_reached = 0;
 
 void process_word(char const *word, size_t len)
 {
@@ -28,7 +34,9 @@ void process_word(char const *word, size_t len)
 
 	/* adding bitmap to total word count */
 	for (i = 0; i < 26; i++)
-		word_count[i] += letter_bitmap[i];
+		letter_count[i] += letter_bitmap[i];
+
+	word_count++;
 }
 
 
@@ -50,16 +58,25 @@ static int pair_compare(void const *x_arg, void const *y_arg)
 		return 0;
 }
 
-void print_probability(size_t words, char const *exceptions)
+void print_probability(char const *exceptions)
 {
 	size_t i;
 
 	struct pair results[26];
 
+	if (word_count == 0)
+	{
+		printf("Could not find any possible words!\n");
+		return;
+	}
+
+	printf("Words found: %lu\n\n", word_count);
+	printf("Letter probabilities:\n");
+
 	/* initializing result */
 	for (i = 0; i < 26; i++) {
 		results[i].letter = 'a' + i;
-		results[i].chance = (float) word_count[i] / (float) words * 100.00;
+		results[i].chance = (float) letter_count[i] / (float) word_count * 100.00;
 	}
 
 	qsort(results, 26, sizeof(struct pair), pair_compare);
@@ -71,39 +88,40 @@ void print_probability(size_t words, char const *exceptions)
 			printf("Letter: %c\tChance: %.2f%%\n", results[i].letter,
 			       results[i].chance);
 
-	memset(word_count, 0, sizeof(word_count));
+	memset(letter_count, 0, sizeof(letter_count));
 }
 
-int print_next_word(char const *word, size_t len)
+void reset_word_position()
 {
-	static size_t col = 0;
-	static size_t row = 0;
+	print_limit_reached = 0;
+	col = 0;
+	row = 0;
+}
+
+void print_next_word(char const *word, size_t len)
+{
+	if (print_limit_reached == 1)
+		return;
 
 	/* printing word */
 	if (col > PRINT_COL_LIMIT) {
+		col = 0;
 
 		if (row < PRINT_ROW_LIMIT) {
 			printf("\n");
-
-			col = 0;
 			row++;
+		} else {
+			printf("\n\nPrint Limit reached!\n");
+
+			print_limit_reached = 1;
+			row = 0;
+
+			return;
 		}
-
-	} else {
-		printf("%s" DELIM, word);
-		col += len + DELIM_LENGTH;
 	}
 
-	if (row >= PRINT_ROW_LIMIT)
-	{
-		/* limit reached */
-		col = 0;
-		row = 0;
-
-		return 1;
-	}
-
-	return 0;
+	printf("%s" DELIM, word);
+	col += len + DELIM_LENGTH;
 }
 
 int sanitized(char const *str, char const *except)
