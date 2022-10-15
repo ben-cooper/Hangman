@@ -20,9 +20,9 @@ void process_word(char const *word, size_t len);
 void print_probability(char const *exceptions);
 
 /**
-  * Resets current print row and column back to zero
+  * Resets current words and letter counts and print row, column back to zero
   */
-void reset_word_position();
+void reset_words();
 
 /**
  * Prints words in a rectangular pattern defined by PRINT_ROW_LIMIT and

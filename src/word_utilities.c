@@ -88,11 +88,16 @@ void print_probability(char const *exceptions)
 			printf("Letter: %c\tChance: %.2f%%\n", results[i].letter,
 			       results[i].chance);
 
-	memset(letter_count, 0, sizeof(letter_count));
 }
 
-void reset_word_position()
+void reset_words()
 {
+
+	/* resetting word counts */
+	memset(letter_count, 0, sizeof(letter_count));
+	word_count = 0;
+
+	/* resetting print positions */
 	print_limit_reached = 0;
 	col = 0;
 	row = 0;

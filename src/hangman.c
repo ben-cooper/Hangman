@@ -68,12 +68,12 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 		print_next_word(word, len);
 	}
 
-	reset_word_position();
-
 	e_close(fd[0]);
 
 	printf("\n\n");
 	print_probability(hangman);
+
+	reset_words();
 }
 
 /**
