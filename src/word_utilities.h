@@ -22,7 +22,7 @@ void print_probability(char const *exceptions);
 /**
   * Resets current words and letter counts and print row, column back to zero
   */
-void reset_words();
+void reset_words(void);
 
 /**
  * Prints words in a rectangular pattern defined by PRINT_ROW_LIMIT and

@@ -90,7 +90,7 @@ void print_probability(char const *exceptions)
 
 }
 
-void reset_words()
+void reset_words(void)
 {
 
 	/* resetting word counts */
