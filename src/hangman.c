@@ -175,8 +175,8 @@ int main(int argc, char **argv)
 	int word_list;
 	struct tst_node **roots;
 	char *endptr;
-	char hangman[MAX_STRING_SIZE];
-	char wrong[MAX_STRING_SIZE];
+	char hangman[MAX_STRING_SIZE+1];
+	char wrong[MAX_STRING_SIZE+1];
 	char const *hangman_buffer;
 	char const *wrong_buffer;
 	unsigned long i;
@@ -229,8 +229,11 @@ int main(int argc, char **argv)
 	while ((hangman_buffer = el_gets(hangman_line, &option)) &&
 	       (wrong_buffer = el_gets(wrong_line, &option))) {
 
-		strcpy(hangman, hangman_buffer);
-		strcpy(wrong, wrong_buffer);
+		strncpy(hangman, hangman_buffer, MAX_STRING_SIZE);
+		strncpy(wrong, wrong_buffer, MAX_STRING_SIZE);
+
+		hangman[MAX_STRING_SIZE] = '\0';
+		wrong[MAX_STRING_SIZE] = '\0';
 
 		/* removing newline */
 		hangman[strcspn(hangman, "\n")] = '\0';
