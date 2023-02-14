@@ -17,7 +17,7 @@ int tests_run = 0;
 char *test_name;
 
 /* ternary search tree tests */
-char *test_tst_single_char_create()
+char *test_tst_single_char_create(void)
 {
 	struct tst_node *root;
 	test_name = "tst single character creation";
@@ -33,7 +33,7 @@ char *test_tst_single_char_create()
 	return NULL;
 }
 
-char *test_tst_multi_char_create()
+char *test_tst_multi_char_create(void)
 {
 	struct tst_node *root;
 	test_name = "tst multi character creation";
@@ -50,7 +50,7 @@ char *test_tst_multi_char_create()
 	return NULL;
 }
 
-char *test_tst_new_word_insert()
+char *test_tst_new_word_insert(void)
 {
 	struct tst_node *root;
 	test_name = "tst new word insert";
@@ -67,7 +67,7 @@ char *test_tst_new_word_insert()
 	return NULL;
 }
 
-char *test_tst_substring_insert()
+char *test_tst_substring_insert(void)
 {
 	struct tst_node *root;
 	test_name = "tst substring insert";
@@ -85,7 +85,7 @@ char *test_tst_substring_insert()
 	return NULL;
 }
 
-char *test_tst_partial_substring_insert()
+char *test_tst_partial_substring_insert(void)
 {
 	struct tst_node *root;
 	test_name = "tst partial substring insert";
@@ -103,7 +103,7 @@ char *test_tst_partial_substring_insert()
 	return NULL;
 }
 
-char *test_tst_single_char_pattern_search()
+char *test_tst_single_char_pattern_search(void)
 {
 	struct tst_node *root;
 	int fd[2];
@@ -131,7 +131,7 @@ char *test_tst_single_char_pattern_search()
 	return NULL;
 }
 
-char *test_tst_pattern_search_valid_string()
+char *test_tst_pattern_search_valid_string(void)
 {
 	struct tst_node *root;
 	int fd[2];
@@ -170,7 +170,7 @@ char *test_tst_pattern_search_valid_string()
 	return NULL;
 }
 
-char *test_tst_pattern_search_invalid_string()
+char *test_tst_pattern_search_invalid_string(void)
 {
 	struct tst_node *root;
 	int fd[2];
@@ -201,7 +201,7 @@ char *test_tst_pattern_search_invalid_string()
 	return NULL;
 }
 
-char *test_tst_pattern_search_duplicate_unknown_letter()
+char *test_tst_pattern_search_duplicate_unknown_letter(void)
 {
 	struct tst_node *root;
 	int fd[2];
@@ -241,7 +241,7 @@ char *test_tst_pattern_search_duplicate_unknown_letter()
 }
 
 /* sanitized tests */
-char *test_sanitized_empty_string()
+char *test_sanitized_empty_string(void)
 {
 	test_name = "sanitized empty string";
 
@@ -251,7 +251,7 @@ char *test_sanitized_empty_string()
 	return NULL;
 }
 
-char *test_sanitized_clean_character()
+char *test_sanitized_clean_character(void)
 {
 	test_name = "sanitized clean character";
 
@@ -261,7 +261,7 @@ char *test_sanitized_clean_character()
 	return NULL;
 }
 
-char *test_sanitized_bad_character()
+char *test_sanitized_bad_character(void)
 {
 	test_name = "sanitized bad character";
 
@@ -271,7 +271,7 @@ char *test_sanitized_bad_character()
 	return NULL;
 }
 
-char *test_sanitized_clean_string()
+char *test_sanitized_clean_string(void)
 {
 	test_name = "sanitized clean string";
 
@@ -281,7 +281,7 @@ char *test_sanitized_clean_string()
 	return NULL;
 }
 
-char *test_sanitized_bad_string()
+char *test_sanitized_bad_string(void)
 {
 	test_name = "sanitized bad string";
 
@@ -292,7 +292,7 @@ char *test_sanitized_bad_string()
 	return NULL;
 }
 
-char *all_tests()
+char *all_tests(void)
 {
 	mu_run_test(test_tst_single_char_create);
 	mu_run_test(test_tst_multi_char_create);
@@ -312,7 +312,7 @@ char *all_tests()
 	return NULL;
 }
 
-int main()
+int main(void)
 {
 	char *result = all_tests();
 
