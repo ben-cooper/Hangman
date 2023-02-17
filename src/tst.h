@@ -1,6 +1,8 @@
 #ifndef TST_H
 #define TST_H
 
+#include <stddef.h>
+
 #define WILDCARD_CHR '-'
 #define WILDCARD_STR "-"
 

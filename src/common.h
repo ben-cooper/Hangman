@@ -2,7 +2,7 @@
 #define COMMON_H
 
 #include <stdio.h>
-#include <fcntl.h>
+#include <unistd.h>
 
 /**
  * error checking versions of system calls
