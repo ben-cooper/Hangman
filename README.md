@@ -47,7 +47,7 @@ or the wrong letters prompt.
 ```
 $ ./hangman -t 4
 Hangman string: -o--u-e-
-Wrong letters: ai
+Wrong letters:  ai
 
 Possible words:
 fortunes  colluded  colludes  colluder  commuted  commutes  commuter  communes
@@ -91,7 +91,3 @@ found in `hangman.c`.
 * `MAX_STRING_SIZE`: the maximum number of characters in a word
 * `DEFAULT_WORKERS`: the default number of child processes to use (must be >0)
 * `DEFAULT_DICTIONARY`: the default path to the word list
-
-## Dependencies
-
-* [libedit](https://man.netbsd.org/editline.3)

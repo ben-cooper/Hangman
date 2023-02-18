@@ -1,5 +1,5 @@
 CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c89
-LFLAGS := -ledit
+LFLAGS :=
 
 OBJECTS := tst.o common.o word_utilities.o
 OBJECTS := $(addprefix obj/, $(OBJECTS))
@@ -17,26 +17,29 @@ else
 endif
 
 ifeq ($(STATIC),1)
-	LFLAGS += -lncurses -static
+	LFLAGS += -static
 endif
 
 .PHONY: hangman tests clean
 
-hangman: bin/hangman
+hangman: bin obj bin/hangman
 
-tests: bin/tests
+tests: bin obj bin/tests
 
 bin/hangman: $(OBJECTS) obj/hangman.o
-	mkdir -p $(@D)
 	$(CC) $^ -o $@ $(LFLAGS)
 
 bin/tests: $(OBJECTS) obj/tests.o
-	mkdir -p $(@D)
 	$(CC) $^ -o $@ $(LFLAGS)
 
 obj/%.o: src/%.c
-	mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+bin:
+	mkdir -p $@
+
+obj:
+	mkdir -p $@
 
 clean:
 	rm -rf obj/ bin/

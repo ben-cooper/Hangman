@@ -2,10 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <getopt.h>
-#include <sys/types.h>
 #include <string.h>
-#include <histedit.h>
+#include <limits.h>
 #include "word_utilities.h"
 #include "common.h"
 #include "tst.h"
@@ -22,22 +20,22 @@
  * Creates child processes to search through an array of ternary search trees
  * for a given pattern.
  * @param roots: array of tst to search (one tst per child)
- * @param hangman: the pattern string (ex. h_llo)
- * @param len: the length of the string
- * @param wrong: array of letters to exclude from the pattern
+ * @param pattern: the pattern string (ex. h_llo)
+ * @param exclude: array of letters to exclude from the pattern
  * @param workers: the number of child processes to create
  */
-void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
-                 char const *wrong, unsigned long workers)
+void fork_search(struct tst_node ** roots, char const *pattern,
+                 char const *exclude, size_t workers)
 {
 	int fd[2];
-	unsigned long i;
 	char word[MAX_STRING_SIZE];
 	char tst_buffer[MAX_STRING_SIZE];
+	size_t worker;
+	size_t len = strlen(pattern);
 
 	e_pipe(fd);
 
-	for (i = 0; i < workers; i++) {
+	for (worker = 0; worker < workers; worker++) {
 		switch (fork()) {
 
 		/* failed */
@@ -48,7 +46,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 		/* child */
 		case 0:
 			e_close(fd[0]);
-			tst_pattern_search(roots[i], hangman, 0, len, wrong, fd[1], tst_buffer);
+			tst_pattern_search(roots[worker], pattern, 0, len, exclude, fd[1], tst_buffer);
 			e_close(fd[1]);
 			exit(EXIT_SUCCESS);
 
@@ -71,7 +69,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
 	e_close(fd[0]);
 
 	printf("\n\n");
-	print_probability(hangman);
+	print_probability(pattern);
 
 	reset_words();
 }
@@ -82,7 +80,7 @@ void fork_search(struct tst_node ** roots, char const *hangman, size_t len,
  * @param word_list: file descriptor to read
  * @param workers: the number of child processes to be created
  */
-struct tst_node **initialize_words(int word_list, unsigned long workers)
+struct tst_node **initialize_words(int word_list, size_t workers)
 {
 	size_t len;
 	size_t i;
@@ -157,34 +155,57 @@ struct tst_node **initialize_words(int word_list, unsigned long workers)
 
 	return roots;
 }
+/**
+  * Gets text from stdin and stores it in buffer
+  * Return 1 if input was valid
+  * @param prompt: The text to display before reading from stdin
+  * @param output: The array to output the text into
+  * @param size: The maximum size of the buffer
+  * @param display_last: If equals 1, show the last string entered into the buffer
+  */
+int get_user_input(char *prompt, char *output, size_t size, int display_last)
+{
+	char buffer[MAX_STRING_SIZE];
 
-char * hangman_prompt(EditLine *e) {
-	(void) e;
-	return "Hangman string: ";
+	/* loop until valid input or EOF received */
+	while (1)
+	{
+		if (display_last)
+			printf("Last input:     %s\n", output);
+
+		printf("%s", prompt);
+		fflush(stdout);
+
+		if (fgets(buffer, size, stdin) == NULL)
+			return 0;
+
+		/* removing newline */
+		buffer[strcspn(buffer, "\n")] = '\0';
+
+		if (sanitized(buffer, WILDCARD_STR))
+		{
+			strncpy(output, buffer, size);
+			return 1;
+		}
+
+		fprintf(stderr, "Invalid input!\n\n");
+	}
 }
 
-char * wrong_prompt(EditLine *e) {
-	(void) e;
-	return "Wrong letters: ";
-}
 
 int main(int argc, char **argv)
 {
 	long input;
 	int option;
 	int word_list;
+	size_t worker;
 	struct tst_node **roots;
 	char *endptr;
-	char hangman[MAX_STRING_SIZE+1];
-	char wrong[MAX_STRING_SIZE+1];
-	char const *hangman_buffer;
-	char const *wrong_buffer;
-	unsigned long i;
-	EditLine *hangman_line;
-	EditLine *wrong_line;
+	char hangman[MAX_STRING_SIZE];
+	char wrong[MAX_STRING_SIZE];
 
 	/* default arguments */
-	unsigned long workers = DEFAULT_WORKERS;
+	size_t workers = DEFAULT_WORKERS;
 	char const *dict_path = DEFAULT_DICTIONARY;
 
 	/* getting arguments */
@@ -195,7 +216,7 @@ int main(int argc, char **argv)
 		case 't':
 			/* getting number of worker threads */
 			input = strtol(optarg, &endptr, 10);
-			if ((input < 1) || (*endptr != '\0')) {
+			if ((input < 1) || (*endptr != '\0') || (input > LONG_MAX)) {
 				fprintf(stderr, INVALID_WORKERS, optarg);
 				return EXIT_FAILURE;
 			}
@@ -217,48 +238,35 @@ int main(int argc, char **argv)
 	roots = initialize_words(word_list, workers);
 	e_close(word_list);
 
-	/* initializing editlines */
-	hangman_line = el_init(argv[0], stdin, stdout, stderr);
-	el_set(hangman_line, EL_PROMPT, &hangman_prompt);
-	el_set(hangman_line, EL_EDITOR, "emacs");
-	wrong_line = el_init(argv[0], stdin, stdout, stderr);
-	el_set(wrong_line, EL_PROMPT, &wrong_prompt);
-	el_set(wrong_line, EL_EDITOR, "emacs");
+	/* keeps track if user has entered input before */
+	input = 0;
 
 	/* user input loop */
-	while ((hangman_buffer = el_gets(hangman_line, &option)) &&
-	       (wrong_buffer = el_gets(wrong_line, &option))) {
+	while(1) {
 
-		strncpy(hangman, hangman_buffer, MAX_STRING_SIZE);
-		strncpy(wrong, wrong_buffer, MAX_STRING_SIZE);
+		if (get_user_input("Hangman string: ", hangman, MAX_STRING_SIZE, input) == 0)
+			break;
 
-		hangman[MAX_STRING_SIZE] = '\0';
-		wrong[MAX_STRING_SIZE] = '\0';
+		if (input == 1)
+			printf("\n");
 
-		/* removing newline */
-		hangman[strcspn(hangman, "\n")] = '\0';
-		wrong[strcspn(wrong, "\n")] = '\0';
+		if (get_user_input("Wrong letters:  ", wrong, MAX_STRING_SIZE, input) == 0)
+			break;
 
-		el_push(hangman_line, hangman);
-		el_push(wrong_line, wrong);
-
-		if (sanitized(hangman, WILDCARD_STR) && sanitized(wrong, ""))
-			fork_search(roots, hangman, strlen(hangman), wrong, workers);
-		else
-			fprintf(stderr, "Invalid input!\n");
+		fork_search(roots, hangman, wrong, workers);
 
 		printf("\n\n");
+		input = 1;
+
 	}
 
 	printf("\n");
 
 	/* freeing memory */
-	for (i = 0; i < workers; i++)
-		tst_destroy(roots[i]);
+	for (worker = 0; worker < workers; worker++)
+		tst_destroy(roots[worker]);
 
 	free(roots);
-	el_end(hangman_line);
-	el_end(wrong_line);
 
 	return EXIT_SUCCESS;
 }
