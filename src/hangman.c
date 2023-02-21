@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <limits.h>
+#include <getopt.h>
 #include "word_utilities.h"
 #include "common.h"
 #include "tst.h"
