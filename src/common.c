@@ -16,12 +16,36 @@ void *e_malloc(size_t size)
 	return result;
 }
 
+void *e_realloc(void *ptr, size_t size)
+{
+	void *result = realloc(ptr, size);
+
+	if (!result) {
+		perror("realloc");
+		exit(EXIT_FAILURE);
+	}
+
+	return result;
+}
+
+int e_creat(const char *pathname, mode_t mode)
+{
+	int fd;
+
+	if ((fd = creat(pathname, mode)) == -1) {
+		perror("creat");
+		exit(EXIT_FAILURE);
+	}
+
+	return fd;
+}
+
+
 int e_open(const char *pathname, int flags)
 {
 	int fd;
 
-	if ((fd = open(pathname, flags)) == -1)
-	{
+	if ((fd = open(pathname, flags)) == -1) {
 		perror("open");
 		exit(EXIT_FAILURE);
 	}
@@ -31,8 +55,7 @@ int e_open(const char *pathname, int flags)
 
 void e_close(int fd)
 {
-	if (close(fd) == -1)
-	{
+	if (close(fd) == -1) {
 		perror("close");
 		exit(EXIT_FAILURE);
 	}

@@ -2,6 +2,15 @@
 #define MISC_H
 
 #include <stdio.h>
+#include <stdbool.h>
+
+#define WILDCARD '-'
+
+#define PRINT_COL_LIMIT 80
+#define PRINT_ROW_LIMIT 15
+
+#define DELIM "  "
+#define DELIM_LENGTH 2
 
 /**
  * Increments global word_count based on the letters present in word
@@ -40,10 +49,9 @@ void print_next_word(char const *word, size_t len);
 void shuffle(char **strs, size_t n);
 
 /**
- * Returns 1 if the string contains only alphabetical characters
+ * Return true if string contains no illegal characters
  * @param str: the input string
- * @param exceptions: array of characters to ignore while sanitizing
  */
-int sanitized(char const *str, char const *exceptions);
+bool sanitized(char const *str);
 
 #endif

@@ -1,4 +1,4 @@
-CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c89
+CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c99
 LFLAGS :=
 
 OBJECTS := tst.o common.o word_utilities.o
@@ -20,16 +20,11 @@ ifeq ($(STATIC),1)
 	LFLAGS += -static
 endif
 
-.PHONY: hangman tests clean
+.PHONY: hangman clean
 
 hangman: bin obj bin/hangman
 
-tests: bin obj bin/tests
-
 bin/hangman: $(OBJECTS) obj/hangman.o
-	$(CC) $^ -o $@ $(LFLAGS)
-
-bin/tests: $(OBJECTS) obj/tests.o
 	$(CC) $^ -o $@ $(LFLAGS)
 
 obj/%.o: src/%.c

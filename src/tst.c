@@ -3,129 +3,156 @@
 #include "common.h"
 #include "tst.h"
 
-struct tst_node *tst_create(char const *str, size_t idx, size_t len)
+struct tst_tree *tst_init(size_t capacity)
 {
-	struct tst_node *result = e_malloc(sizeof(struct tst_node));
+	struct tst_tree *tree = e_malloc(sizeof(struct tst_tree) + sizeof(struct tst_node) * capacity);
 
-	result->left = NULL;
-	result->right = NULL;
-	result->chr = str[idx];
+	tree->elements = 0;
+	tree->capacity = capacity;
 
-	/* if on the last character */
-	if ((len - idx) == 1) {
-		result->middle = NULL;
-		result->is_word = 1;
-	} else {
-		/* recurse */
-		result->middle = tst_create(str, idx + 1, len);
-		result->is_word = 0;
-	}
-
-	return result;
+	return tree;
 }
 
-void tst_insert(struct tst_node *root, char const *str, size_t idx, size_t len)
+void tst_insert(struct tst_tree **tree_ptr, char const *str, size_t node)
 {
-	if (str[idx] < root->chr) {
-		/* left subtree */
-		if (root->left)
-			tst_insert(root->left, str, idx, len);
-		else
-			root->left = tst_create(str, idx, len);
+	struct tst_tree *tree = *tree_ptr;
 
-	} else if (str[idx] > root->chr) {
-		/* right subtree */
-		if (root->right)
-			tst_insert(root->right, str, idx, len);
-		else
-			root->right = tst_create(str, idx, len);
+	// if we are at the bottom of the tree, put the rest of the string in the tree
+	if (tree->elements == node) {
+		while (true) {
 
+			// expanding tree if it's at capacity
+			if (tree->capacity == node) {
+				*tree_ptr = e_realloc(tree, sizeof(struct tst_tree) + sizeof(struct tst_node) * tree->capacity * TST_SCALING);
+				tree = *tree_ptr;
+				tree->capacity *= TST_SCALING;
+			}
+
+			memset(tree->array + node, 0, sizeof(struct tst_node));
+
+			// building node
+			tree->array[node].chr   = *str;
+
+			tree->elements++;
+
+			if (str[1] == '\0') {
+				tree->array[node].is_word = true;
+				break;
+			}
+
+			tree->array[node].middle  = node + 1;
+
+			node++;
+			str++;
+		}
 	} else {
-		/* base case last character */
-		if ((len - idx) == 1) {
-			root->is_word = 1;
+		// navigate through the tree recursively until the end
+		if (*str < tree->array[node].chr) {
+			if (!tree->array[node].left)
+					tree->array[node].left = tree->elements;
+
+			tst_insert(tree_ptr, str, tree->array[node].left);
+		} else if (*str > tree->array[node].chr) {
+				if (!tree->array[node].right)
+					tree->array[node].right = tree->elements;
+
+			tst_insert(tree_ptr, str, tree->array[node].right);
 		} else {
-			/* middle subtree */
-			if (root->middle)
-				tst_insert(root->middle, str, idx + 1, len);
-			else
-				root->middle = tst_create(str, idx + 1, len);
+			// if we are on the last character
+			if (str[1] == '\0') {
+				tree->array[node].is_word = 1;
+			} else {
+				if (!tree->array[node].middle)
+					tree->array[node].middle = tree->elements;
+
+				tst_insert(tree_ptr, str + 1, tree->array[node].middle);
+			}
 		}
 	}
 }
 
-int tst_search(struct tst_node const *root, char const *str, size_t idx,
-               size_t len)
+void tst_pattern_search(struct tst_tree const *tree, char const *pattern,
+                        size_t node, char const *wrong, char wildcard,
+						int fd, char *buffer, size_t index)
 {
-	if (!root)
-		return 0;
-
-	if (str[idx] < root->chr)
-		return root->left && tst_search(root->left, str, idx, len);
-	else if (str[idx] > root->chr)
-		return root->right && tst_search(root->right, str, idx, len);
-	else
-		return (((len - idx) == 1) && root->is_word) ||
-		       tst_search(root->middle, str, idx + 1, len);
-}
-
-void tst_pattern_search(struct tst_node const *root, char const *pattern,
-                        size_t idx, size_t len, char const *wrong, int fd,
-                        char *buffer)
-{
-	if (!root)
+	if (node >= tree->elements)
 		return;
 
-	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] < root->chr))
-		tst_pattern_search(root->left, pattern, idx, len, wrong, fd, buffer);
+	if ((tree->array[node].left) && ((pattern[index] == wildcard) || (pattern[index] < tree->array[node].chr)))
+		tst_pattern_search(tree, pattern, tree->array[node].left, wrong, wildcard, fd, buffer, index);
 
-	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] > root->chr))
-		tst_pattern_search(root->right, pattern, idx, len, wrong, fd, buffer);
+	if ((tree->array[node].right) && ((pattern[index] == wildcard) || (pattern[index] > tree->array[node].chr)))
+		tst_pattern_search(tree, pattern, tree->array[node].right, wrong, wildcard, fd, buffer, index);
 
-	if ((pattern[idx] == WILDCARD_CHR) &&
-		(strchr(wrong, root->chr) || strchr(pattern, root->chr)))
+	// if node character is already present in pattern or wrong letters, wildcard cannot match it
+	if ((pattern[index] == wildcard) &&
+		(strchr(wrong, tree->array[node].chr) || strchr(pattern, tree->array[node].chr)))
 		return;
 
-	if ((pattern[idx] == WILDCARD_CHR) || (pattern[idx] == root->chr)) {
-		buffer[idx] = root->chr;
-		if ((len - idx) == 1) {
-			if (root->is_word)
-				e_write(fd, buffer, len);
+	if ((pattern[index] == wildcard) || (pattern[index] == tree->array[node].chr)) {
+		buffer[index] = tree->array[node].chr;
 
-		} else {
-			tst_pattern_search(root->middle, pattern, idx + 1, len, wrong, fd, buffer);
+		// if we are on the last character
+		if (pattern[index + 1] == '\0')  {
+			if (tree->array[node].is_word) {
+				buffer[index+1] = '\0';
+				e_write(fd, buffer,  index + 1);
+			}
+		} else if (tree->array[node].middle) {
+			tst_pattern_search(tree, pattern, tree->array[node].middle, wrong, wildcard, fd, buffer, index +  1);
 		}
 	}
 }
 
-size_t tst_height(struct tst_node const *root)
+void tst_trim(struct tst_tree **tree)
 {
-	size_t left_height;
-	size_t right_height;
-	size_t middle_height;
-	size_t result;
-
-	if (!root)
-		return 0;
-
-	left_height = tst_height(root->left) + 1;
-	right_height = tst_height(root->right) + 1;
-	middle_height = tst_height(root->middle) + 1;
-
-	result = left_height > right_height ? left_height : right_height;
-	result = result > middle_height ? result : middle_height;
-
-	return result;
+	*tree = realloc(*tree, sizeof(struct tst_tree) + sizeof(struct tst_node) * (*tree)->elements);
+	(*tree)->capacity = (*tree)->elements;
 }
 
-void tst_destroy(struct tst_node *root)
+void tst_save_cache(struct tst_tree **trees, size_t len, int fd)
 {
-	if (!root)
-		return;
+	size_t i;
+	size_t size;
 
-	tst_destroy(root->left);
-	tst_destroy(root->right);
-	tst_destroy(root->middle);
+	struct tst_cache_header header = {FILE_MAGIC, len};
 
-	free(root);
+	e_write(fd, &header, sizeof(header));
+
+	for (i = 0; i < len; i++) {
+		size = sizeof(struct tst_tree) + sizeof(struct tst_node) * trees[i]->elements;
+		e_write(fd, trees[i], size);
+	}
+}
+
+struct tst_tree **tst_load_cache(int fd, size_t *num_trees)
+{
+	size_t i;
+	size_t len;
+	char *file_buffer;
+	struct tst_tree **trees;
+	struct tst_cache_header header;
+
+	// getting file size
+	len = end_lseek(fd);
+	start_lseek(fd);
+
+	// reading header
+	e_read(fd, &header, sizeof(header));
+	*num_trees = header.trees;
+
+	// reading rest of file
+	file_buffer = e_malloc(len - sizeof(header));
+	e_read(fd, file_buffer, len - sizeof(header));
+
+	trees = e_malloc(sizeof(struct tst_tree *) * header.trees);
+
+	for (i = 0; i < header.trees; i++) {
+		trees[i] = (struct tst_tree *) file_buffer;
+
+		// finding next tree
+		file_buffer += sizeof(struct tst_tree) + sizeof(struct tst_node) * trees[i]->capacity;
+	}
+
+	return trees;
 }

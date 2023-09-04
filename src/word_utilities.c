@@ -1,14 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
 #include "word_utilities.h"
-
-#define PRINT_COL_LIMIT 80
-#define PRINT_ROW_LIMIT 15
-#define DELIM "  "
-#define DELIM_LENGTH 2
 
 static size_t letter_count[26];
 static size_t word_count = 0;
@@ -16,7 +12,7 @@ static size_t word_count = 0;
 static size_t col = 0;
 static size_t row = 0;
 
-static int print_limit_reached = 0;
+static bool print_limit_reached = 0;
 
 void process_word(char const *word, size_t len)
 {
@@ -25,13 +21,13 @@ void process_word(char const *word, size_t len)
 	int idx;
 	int letter_bitmap[26] = { 0 };
 
-	/* adding each letter of word */
+	// adding each letter of word
 	for (i = 0; i < len; i++) {
 		idx = word[i] - 'a';
 		letter_bitmap[idx] = 1;
 	}
 
-	/* adding bitmap to total word count */
+	// adding bitmap to total word count
 	for (i = 0; i < 26; i++)
 		letter_count[i] += letter_bitmap[i];
 
@@ -72,7 +68,7 @@ void print_probability(char const *exceptions)
 	printf("Words found: %lu\n\n", word_count);
 	printf("Letter probabilities:\n");
 
-	/* initializing result */
+	// initializing result
 	for (i = 0; i < 26; i++) {
 		results[i].letter = 'a' + i;
 		results[i].chance = (float) letter_count[i] / (float) word_count * 100.00;
@@ -92,22 +88,22 @@ void print_probability(char const *exceptions)
 void reset_words(void)
 {
 
-	/* resetting word counts */
+	// resetting word counts
 	memset(letter_count, 0, sizeof(letter_count));
 	word_count = 0;
 
-	/* resetting print positions */
-	print_limit_reached = 0;
+	// resetting print positions
+	print_limit_reached = false;
 	col = 0;
 	row = 0;
 }
 
 void print_next_word(char const *word, size_t len)
 {
-	if (print_limit_reached == 1)
+	if (print_limit_reached == true)
 		return;
 
-	/* printing word */
+	// printing word
 	if (col > PRINT_COL_LIMIT) {
 		col = 0;
 
@@ -117,7 +113,7 @@ void print_next_word(char const *word, size_t len)
 		} else {
 			printf("\n\nPrint Limit reached!\n");
 
-			print_limit_reached = 1;
+			print_limit_reached = true;
 			row = 0;
 
 			return;
@@ -128,19 +124,17 @@ void print_next_word(char const *word, size_t len)
 	col += len + DELIM_LENGTH;
 }
 
-int sanitized(char const *str, char const *except)
+bool sanitized(char const *str)
 {
-	size_t i;
-	size_t len = strlen(str);
+	while (*str != '\0') {
+		
+		if (((*str < 'a') || (*str > 'z')) && (*str != WILDCARD))
+			return false;
+	
+		str++;
+	}
 
-	if (!len)
-		return 1;
-
-	for (i = 0; i < len; i++)
-		if (!((isalpha(str[i]) && islower(str[i])) ||(strchr(except, str[i]))))
-			return 0;
-
-	return 1;
+	return true;
 }
 
 void shuffle(char **strs, size_t n)

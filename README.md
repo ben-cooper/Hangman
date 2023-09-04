@@ -30,14 +30,17 @@ Environment Variables:
 
 ## Usage
 
-`usage: ./hangman [-t worker-threads]  [-f path_to_word_list]`
+`usage: ./hangman [-t worker-threads]  [-f path_to_word_list] [-c]`
 
-`worker_threads` (optional) specifies the number of child processes used to
+`-t worker_threads` (optional) specifies the number of child processes used to
 search the dictionary.  The default is `1`.
 
-`path_to_word_list` (optional) specifies the path to an alternative word list
+`-f path_to_word_list` (optional) specifies the path to an alternative word list
 or dictionary.  The default is the Unix word list using the path.
 `/usr/share/dict/words`
+
+`-c` (optional) (overrides -t and -f) specifies that cache file should be used for
+dictionary.  By default the current directory will be searched for the file `cache`.
 
 During usage `CTRL-D` can be used to exit at either the hangman string prompt
 or the wrong letters prompt.

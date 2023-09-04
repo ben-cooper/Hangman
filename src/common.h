@@ -8,6 +8,8 @@
  */
 
 void *e_malloc(size_t size);
+void *e_realloc(void *ptr, size_t size);
+int e_creat(const char *pathname, mode_t mode);
 int e_open(const char *pathname, int flags);
 void e_close(int fd);
 void e_read(int fd, void *buf, size_t count);

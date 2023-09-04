@@ -2,71 +2,81 @@
 #define TST_H
 
 #include <stddef.h>
+#include <stdbool.h>
+#include <sys/types.h>
 
-#define WILDCARD_CHR '-'
-#define WILDCARD_STR "-"
+#define TST_START_SIZE 1024
+#define TST_SCALING 2
+
+#define FILE_MAGIC "TSTCACHE"
+#define FILE_MAGIC_SIZE 8
+
+struct tst_cache_header {
+	char magic[FILE_MAGIC_SIZE];
+	size_t trees;
+};
 
 /**
  * Structure for a single node in a ternary search tree
  */
 struct tst_node {
-	int is_word;
+	size_t left;
+	size_t right;
+	size_t middle;
+	bool is_word;
 	char chr;
-	struct tst_node *left;
-	struct tst_node *right;
-	struct tst_node *middle;
 };
 
 /**
- * Creates a new ternary search tree
- * @param str: the string to initialize the tree
- * @param idx: the current position in the string (used in recursion)
- * @param len: the length of the string
+ * Structure for a tree comprising many nodes
  */
-struct tst_node *tst_create(char const *str, size_t idx, size_t len);
+struct tst_tree {
+	size_t elements;
+	size_t capacity;
+	struct tst_node array[];
+};
+
+/**
+ * Initializes a new ternary search tree
+ * @param capacity	The starting number of elements the tree can contain
+ * @return a pointer to the new tree
+ */
+struct tst_tree *tst_init(size_t capacity);
 
 /**
  * Inserts a new string into the ternary search tree
- * @param root: pointer to the tree
+ * @param tree: pointer to the tree
  * @param str: the string to insert
- * @param idx: the current position in the string (used in recursion)
+ * @param node: the current position in the ternary search tree
  */
-void tst_insert(struct tst_node *root, char const *str, size_t idx, size_t len);
-
-/**
- * Frees all memory used by the entire ternary search tree
- * @param root: pointer to the tst to destroy
- */
-void tst_destroy(struct tst_node *root);
+void tst_insert(struct tst_tree **tree, char const *str, size_t node);
 
 /**
  * Writes all matching words into the file descriptor
- * @param root: pointer to the tree
+ * @param tree: pointer to the tree
  * @param pattern: string pattern to search (ex. h_llo)
- * @param idx: the current position in the pattern string (used in recursion)
- * @param len: the length of the pattern string
+ * @param node: the current position in the tree
  * @param wrong: array of letters that are blacklisted
  * @param fd: the file descriptor to write matching words into
  * @param buffer: string buffer to accumulate letters of words through recursion
  */
-void tst_pattern_search(struct tst_node const *root, char const *pattern,
-                        size_t idx, size_t len, char const *wrong, int fd,
-                        char *buffer);
+void tst_pattern_search(struct tst_tree const *tree, char const *pattern,
+                        size_t node, char const *wrong, char wildcard,
+						int fd, char *buffer, size_t index);
 
 /**
- * Returns 1 if the word is present in the tree
- * @param root: pointer to the tree
- * @param str: the string to search for
- * @param idx: the current position of the string (used in recursion)
- * @param len: the length of the string
+ *	Resizes array of nodes to remove extra space.
  */
-int tst_search(struct tst_node const *root, char const *str, size_t idx,
-               size_t len);
+void tst_trim(struct tst_tree **tree);
 
 /**
- * Returns the height of the ternary search tree
- * @param root: pointer to the tree
+ * Serializes the tst tree to a file
  */
-size_t tst_height(struct tst_node const *root);
+void tst_save_cache(struct tst_tree **trees, size_t len, int fd);
+
+/**
+ * Loads array of tst_tree's from a file
+ */
+struct tst_tree **tst_load_cache(int fd, size_t *num_trees);
 
 #endif
