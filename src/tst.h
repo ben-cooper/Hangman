@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+#define SEARCH_BUFFER_SIZE 100
+
 #define TST_START_SIZE 1024
 #define TST_SCALING 2
 
@@ -33,7 +35,7 @@ struct tst_node {
 struct tst_tree {
 	size_t elements;
 	size_t capacity;
-	struct tst_node array[];
+	struct tst_node nodes[];
 };
 
 /**
@@ -47,22 +49,18 @@ struct tst_tree *tst_init(size_t capacity);
  * Inserts a new string into the ternary search tree
  * @param tree: pointer to the tree
  * @param str: the string to insert
- * @param node: the current position in the ternary search tree
  */
-void tst_insert(struct tst_tree **tree, char const *str, size_t node);
+void tst_insert(struct tst_tree **tree_ptr, char const *str);
 
 /**
  * Writes all matching words into the file descriptor
  * @param tree: pointer to the tree
  * @param pattern: string pattern to search (ex. h_llo)
- * @param node: the current position in the tree
  * @param wrong: array of letters that are blacklisted
  * @param fd: the file descriptor to write matching words into
- * @param buffer: string buffer to accumulate letters of words through recursion
  */
 void tst_pattern_search(struct tst_tree const *tree, char const *pattern,
-                        size_t node, char const *wrong, char wildcard,
-						int fd, char *buffer, size_t index);
+                        char const *wrong, char wildcard, int fd);
 
 /**
  *	Resizes array of nodes to remove extra space.

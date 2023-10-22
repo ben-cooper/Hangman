@@ -34,7 +34,6 @@ void process_word(char const *word, size_t len)
 	word_count++;
 }
 
-
 struct pair {
 	char letter;
 	float chance;
@@ -59,19 +58,19 @@ void print_probability(char const *exceptions)
 
 	struct pair results[26];
 
-	if (word_count == 0)
-	{
+	if (word_count == 0) {
 		printf("Could not find any possible words!\n");
 		return;
 	}
 
-	printf("Words found: %lu\n\n", word_count);
+	printf("Words found: %zu\n\n", word_count);
 	printf("Letter probabilities:\n");
 
 	// initializing result
 	for (i = 0; i < 26; i++) {
 		results[i].letter = 'a' + i;
-		results[i].chance = (float) letter_count[i] / (float) word_count * 100.00;
+		results[i].chance =
+		    (float)letter_count[i] / (float)word_count *100.00;
 	}
 
 	qsort(results, 26, sizeof(struct pair), pair_compare);
@@ -79,9 +78,10 @@ void print_probability(char const *exceptions)
 	printf("None\b\b\b\b");
 
 	for (i = 0; i < 26; i++)
-		if ((!strchr(exceptions, results[i].letter)) && (results[i].chance))
-			printf("Letter: %c\tChance: %.2f%%\n", results[i].letter,
-			       results[i].chance);
+	        if ((!strchr(exceptions, results[i].letter))
+		    && (results[i].chance))
+			printf("Letter: %c\tChance: %.2f%%\n",
+	                       results[i].letter, results[i].chance);
 
 }
 
@@ -127,10 +127,10 @@ void print_next_word(char const *word, size_t len)
 bool sanitized(char const *str)
 {
 	while (*str != '\0') {
-		
+
 		if (((*str < 'a') || (*str > 'z')) && (*str != WILDCARD))
 			return false;
-	
+
 		str++;
 	}
 

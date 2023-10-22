@@ -40,7 +40,6 @@ int e_creat(const char *pathname, mode_t mode)
 	return fd;
 }
 
-
 int e_open(const char *pathname, int flags)
 {
 	int fd;
@@ -63,7 +62,7 @@ void e_close(int fd)
 
 void e_read(int fd, void *buf, size_t count)
 {
-	if (read(fd, buf, count) == -1)	{
+	if (read(fd, buf, count) == -1) {
 		perror("read");
 		exit(EXIT_FAILURE);
 	}

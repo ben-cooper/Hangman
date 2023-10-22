@@ -30,12 +30,11 @@
  * @param exclude: array of letters to exclude from the pattern
  * @param threads: the number of child processes to create
  */
-void fork_search(struct tst_tree ** trees, char const *pattern,
+void fork_search(struct tst_tree **trees, char const *pattern,
                  char const *exclude, size_t threads)
 {
 	int fd[2];
 	char word[MAX_STRING_SIZE];
-	char tst_buffer[MAX_STRING_SIZE];
 	size_t thread;
 	size_t len = strlen(pattern);
 
@@ -52,7 +51,8 @@ void fork_search(struct tst_tree ** trees, char const *pattern,
 		// child
 		case 0:
 			e_close(fd[0]);
-			tst_pattern_search(trees[thread], pattern, 0, exclude, WILDCARD, fd[1], tst_buffer, 0);
+			tst_pattern_search(trees[thread], pattern, exclude,
+			                   WILDCARD, fd[1]);
 			e_close(fd[1]);
 			exit(EXIT_SUCCESS);
 
@@ -108,8 +108,7 @@ struct tst_tree **initialize_words(char *dict, size_t threads)
 	i = 0;
 
 	str = strtok(dict, "\n");
-	while (str)
-	{
+	while (str) {
 		if (sanitized(str)) {
 			array[i] = str;
 			i++;
@@ -119,7 +118,7 @@ struct tst_tree **initialize_words(char *dict, size_t threads)
 	}
 
 	if (i != words)
-		printf("%lu word(s) not added.\n", words - i);
+		printf("%zu word(s) not added.\n", words - i);
 
 	words = i;
 
@@ -127,7 +126,6 @@ struct tst_tree **initialize_words(char *dict, size_t threads)
 		fprintf(stderr, "Not enough words for number of threads.\n");
 		exit(EXIT_FAILURE);
 	}
-
 	shuffle(array, words);
 
 	// initializing ternary search trees
@@ -138,7 +136,7 @@ struct tst_tree **initialize_words(char *dict, size_t threads)
 
 	// separating array into separate ternary search trees
 	for (i = 0; i < words; i++)
-		tst_insert(trees + (i % threads), array[i], 0);
+		tst_insert(trees + (i % threads), array[i]);
 
 	free(array);
 
@@ -160,8 +158,7 @@ bool get_user_input(char *prompt, char *output, int display_last)
 	char buffer[MAX_STRING_SIZE];
 
 	// loop until valid input or EOF received
-	while (true)
-	{
+	while (true) {
 		if (display_last)
 			printf("Last input:     %s\n", output);
 
@@ -174,8 +171,7 @@ bool get_user_input(char *prompt, char *output, int display_last)
 		// removing newline
 		buffer[strcspn(buffer, "\n")] = '\0';
 
-		if (sanitized(buffer))
-		{
+		if (sanitized(buffer)) {
 			strncpy(output, buffer, MAX_STRING_SIZE);
 			return true;
 		}
@@ -183,7 +179,6 @@ bool get_user_input(char *prompt, char *output, int display_last)
 		fprintf(stderr, "Invalid input!\n\n");
 	}
 }
-
 
 int main(int argc, char **argv)
 {
@@ -211,7 +206,8 @@ int main(int argc, char **argv)
 		case 't':
 			// getting number of threads
 			input = strtol(optarg, &endptr, 10);
-			if ((input < 1) || (*endptr != '\0') || (input > LONG_MAX)) {
+			if ((input < 1) || (*endptr != '\0')
+			    || (input > LONG_MAX)) {
 				fprintf(stderr, INVALID_WORKERS, optarg);
 				return EXIT_FAILURE;
 			}
@@ -259,7 +255,7 @@ int main(int argc, char **argv)
 	input = false;
 
 	// user input loop
-	while(true) {
+	while (true) {
 
 		if (!get_user_input("Hangman string: ", hangman, input))
 			break;
