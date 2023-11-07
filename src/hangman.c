@@ -16,11 +16,11 @@
 #define DEFAULT_WORKERS 1
 #define DEFAULT_DICTIONARY "/usr/share/dict/words"
 
-#define USAGE "usage: %s [-t worker_threads] [-f path_to_word_list]\n"
-#define INVALID_WORKERS "Invalid number of worker threads: %s\n"
-
 #define CACHE "cache"
 #define CACHE_PERM 0644
+
+#define USAGE "usage: %s [-t worker_threads] [-f path_to_word_list] [-c]\n"
+#define INVALID_WORKERS "Invalid number of worker threads: %s\n"
 
 /**
  * Creates child processes to search through an array of ternary search trees

@@ -7,12 +7,13 @@ OBJECTS := $(addprefix obj/, $(OBJECTS))
 ifeq ($(DEBUG),1)
 	CFLAGS += -g -Og
 else
-	ifeq ($(CC),clang)
+	ifeq ($(LLVM), 1)
+		CC := clang
 		CFLAGS += -Oz -flto=full -march=native
 		LFLAGS += -fuse-ld=lld -rtlib=compiler-rt -s
 	else
-		CFLAGS += -Os -flto -fdata-sections -ffunction-sections
-		LFLAGS += -Wl,--gc-sections -s
+		CFLAGS += -Oz -flto
+		LFLAGS += -s
 	endif
 endif
 

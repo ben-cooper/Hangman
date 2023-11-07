@@ -10,7 +10,6 @@
 #define PRINT_ROW_LIMIT 15
 
 #define DELIM "  "
-#define DELIM_LENGTH 2
 
 /**
  * Increments global word_count based on the letters present in word

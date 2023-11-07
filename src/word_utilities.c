@@ -121,7 +121,9 @@ void print_next_word(char const *word, size_t len)
 	}
 
 	printf("%s" DELIM, word);
-	col += len + DELIM_LENGTH;
+
+	// subtracting 1 for the zero byte
+	col += len + sizeof(DELIM) - 1;
 }
 
 bool sanitized(char const *str)
