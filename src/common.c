@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include "common.h"
 
 void *e_malloc(size_t size)
@@ -9,7 +11,7 @@ void *e_malloc(size_t size)
 	void *result = malloc(size);
 
 	if (!result) {
-		perror("malloc");
+		fprintf(stderr, "malloc: %zu: %s\n", size, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -21,7 +23,7 @@ void *e_realloc(void *ptr, size_t size)
 	void *result = realloc(ptr, size);
 
 	if (!result) {
-		perror("realloc");
+		fprintf(stderr, "realloc: %zu: %s\n", size, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -33,7 +35,7 @@ int e_creat(const char *pathname, mode_t mode)
 	int fd;
 
 	if ((fd = creat(pathname, mode)) == -1) {
-		perror("creat");
+		fprintf(stderr, "creat: %s: %s\n", pathname, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -45,7 +47,7 @@ int e_open(const char *pathname, int flags)
 	int fd;
 
 	if ((fd = open(pathname, flags)) == -1) {
-		perror("open");
+		fprintf(stderr, "open: %s: %s\n", pathname, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -55,7 +57,7 @@ int e_open(const char *pathname, int flags)
 void e_close(int fd)
 {
 	if (close(fd) == -1) {
-		perror("close");
+		fprintf(stderr, "close: %d: %s", fd, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 }
@@ -63,7 +65,7 @@ void e_close(int fd)
 void e_read(int fd, void *buf, size_t count)
 {
 	if (read(fd, buf, count) == -1) {
-		perror("read");
+		fprintf(stderr, "read: %d: %s", fd, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 }
@@ -71,7 +73,7 @@ void e_read(int fd, void *buf, size_t count)
 void e_write(int fd, const void *buf, size_t count)
 {
 	if (write(fd, buf, count) == -1) {
-		perror("write");
+		fprintf(stderr, "write: %d: %s", fd, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 }
@@ -89,7 +91,7 @@ off_t end_lseek(int fd)
 	off_t result;
 
 	if ((result = lseek(fd, 0, SEEK_END)) == -1) {
-		perror("lseek");
+		fprintf(stderr, "lseek: %d: %s", fd, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -99,7 +101,7 @@ off_t end_lseek(int fd)
 void start_lseek(int fd)
 {
 	if (lseek(fd, 0, SEEK_SET) == -1) {
-		perror("lseek");
+		fprintf(stderr, "lseek: %d: %s", fd, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 }
