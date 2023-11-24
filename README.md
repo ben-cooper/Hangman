@@ -34,8 +34,10 @@ search the dictionary.  The default is `1`.
 `-f path_to_word_list` (optional) specifies the path to an alternative word list
 or dictionary.  The default is `/usr/share/dict/words`
 
-`-c` (optional) (overrides -t and -f) specifies that cache file should be used for
-dictionary.  The directory will be searched for the file `cache`.
+`-c` (optional) creates a cache if none exists or if used in conjunction with
+`-t` or `-f`, otherwise loads the word list from an existing cache (the cache
+determines the number of threads)
+
 
 During usage `CTRL-D` can be used to exit at either the hangman string prompt
 or the wrong letters prompt.

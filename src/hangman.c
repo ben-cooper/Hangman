@@ -16,7 +16,7 @@
 #define DEFAULT_WORKERS 1
 #define DEFAULT_DICTIONARY "/usr/share/dict/words"
 
-#define CACHE "cache"
+#define CACHE ".word_cache"
 #define CACHE_PERM 0644
 
 #define USAGE "usage: %s [-t worker_threads] [-f path_to_word_list] [-c]\n"
@@ -153,7 +153,7 @@ struct tst_tree **initialize_words(char *dict, size_t threads)
   * @param output: The array to output the text into
   * @param display_last: If equals 1, show the last string entered into the buffer
   */
-bool get_user_input(char *prompt, char *output, int display_last)
+bool get_user_input(char *prompt, char *output, bool display_last)
 {
 	char buffer[MAX_STRING_SIZE];
 
@@ -185,6 +185,9 @@ int main(int argc, char **argv)
 	int fd;
 	int option;
 	long input;
+	bool cache_exists;
+	bool display_last = false;
+	bool custom_param = false;
 	size_t len;
 	size_t thread;
 	struct tst_tree **trees;
@@ -204,6 +207,8 @@ int main(int argc, char **argv)
 		switch (option) {
 
 		case 't':
+			custom_param = true;
+
 			// getting number of threads
 			input = strtol(optarg, &endptr, 10);
 			if ((input < 1) || (*endptr != '\0')
@@ -216,6 +221,8 @@ int main(int argc, char **argv)
 			break;
 
 		case 'f':
+			custom_param = true;
+
 			dict_file = optarg;
 			break;
 
@@ -229,60 +236,65 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (!use_cache) {
-		// reading dictionary into memory
+	cache_exists = (access(CACHE, F_OK) == 0);
+
+	// should we load from cache or from a dictionary file
+	if (use_cache && cache_exists && !custom_param) {
+		fprintf(stderr, "Loading word list from cache file...\n\n");
+
+		fd = e_open(CACHE, O_RDONLY);
+		trees = tst_load_cache(fd, &threads);
+
+	} else {
 		fd = e_open(dict_file, O_RDONLY);
 
 		// getting size of dictionary file
 		len = end_lseek(fd);
 		start_lseek(fd);
 
+		// reading dictionary from file into memory
 		dict = e_malloc(len + 1);
 		e_read(fd, dict, len);
 		dict[len] = '\0';
 
 		trees = initialize_words(dict, threads);
 		free(dict);
-	} else {
-		// loading trees
-		fd = e_open(CACHE, O_RDONLY);
-		trees = tst_load_cache(fd, &threads);
 	}
 
-	close(fd);
+	e_close(fd);
 
-	// keeps track if user has entered input before
-	input = false;
+	if (use_cache && (custom_param || !cache_exists)) {
+		fprintf(stderr, "Save cache file...\n\n");
+
+		fd = e_creat(CACHE, CACHE_PERM);
+		tst_save_cache(trees, threads, fd);
+		e_close(fd);
+	}
 
 	// user input loop
 	while (true) {
 
-		if (!get_user_input("Hangman string: ", hangman, input))
+		if (!get_user_input("Hangman string: ", hangman, display_last))
 			break;
 
-		if (input == true)
+		if (display_last)
 			printf("\n");
 
-		if (!get_user_input("Wrong letters:  ", wrong, input))
+		if (!get_user_input("Wrong letters:  ", wrong, display_last))
 			break;
 
 		fork_search(trees, hangman, wrong, threads);
 
 		printf("\n\n");
-		input = true;
 
+		display_last = true;
 	}
 
 	printf("\n");
 
-	// caching trees
-	fd = e_creat(CACHE, CACHE_PERM);
-	tst_save_cache(trees, threads, fd);
-	close(fd);
-
-	// freeing memory
-	if (use_cache)
-		free(trees[0]);
+	// freeing memory, if cache was used, the memory is one contiguous block
+	if (use_cache && cache_exists)
+		free(*trees);
 	else
 		for (thread = 0; thread < threads; thread++)
 			free(trees[thread]);
