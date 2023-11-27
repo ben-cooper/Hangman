@@ -6,38 +6,25 @@
 #include <time.h>
 #include "word_utilities.h"
 
-static size_t letter_count[26];
-static size_t word_count = 0;
-
-static size_t col = 0;
-static size_t row = 0;
-
-static bool print_limit_reached = 0;
-
-void process_word(char const *word, size_t len)
+void process_word(struct printer *p, char const *word, size_t len)
 {
 
 	size_t i;
-	int idx;
-	int letter_bitmap[26] = { 0 };
+	size_t j;
+	bool letter_bitmap[26] = { false };
 
 	// adding each letter of word
 	for (i = 0; i < len; i++) {
-		idx = word[i] - 'a';
-		letter_bitmap[idx] = 1;
+		j = word[i] - 'a';
+		letter_bitmap[j] = true;
 	}
 
 	// adding bitmap to total word count
 	for (i = 0; i < 26; i++)
-		letter_count[i] += letter_bitmap[i];
+		p->letter_count[i] += letter_bitmap[i];
 
-	word_count++;
+	p->word_count++;
 }
-
-struct pair {
-	char letter;
-	float chance;
-};
 
 static int pair_compare(void const *x_arg, void const *y_arg)
 {
@@ -52,25 +39,25 @@ static int pair_compare(void const *x_arg, void const *y_arg)
 		return 0;
 }
 
-void print_probability(char const *exceptions)
+void print_probability(struct printer *p, char const *exceptions)
 {
 	size_t i;
 
 	struct pair results[26];
 
-	if (word_count == 0) {
+	if (p->word_count == 0) {
 		printf("Could not find any possible words!\n");
 		return;
 	}
 
-	printf("Words found: %zu\n\n", word_count);
+	printf("Words found: %zu\n\n", p->word_count);
 	printf("Letter probabilities:\n");
 
 	// initializing result
 	for (i = 0; i < 26; i++) {
 		results[i].letter = 'a' + i;
 		results[i].chance =
-		    (float)letter_count[i] / (float)word_count *100.00;
+		    (float)(p->letter_count[i]) / (float)(p->word_count) * 100.00;
 	}
 
 	qsort(results, 26, sizeof(struct pair), pair_compare);
@@ -85,36 +72,23 @@ void print_probability(char const *exceptions)
 
 }
 
-void reset_words(void)
+void print_next_word(struct printer *p, char const *word, size_t len)
 {
-
-	// resetting word counts
-	memset(letter_count, 0, sizeof(letter_count));
-	word_count = 0;
-
-	// resetting print positions
-	print_limit_reached = false;
-	col = 0;
-	row = 0;
-}
-
-void print_next_word(char const *word, size_t len)
-{
-	if (print_limit_reached == true)
+	if (p->print_limit_reached == true)
 		return;
 
 	// printing word
-	if (col > PRINT_COL_LIMIT) {
-		col = 0;
+	if (p->col > PRINT_COL_LIMIT) {
+		p->col = 0;
 
-		if (row < PRINT_ROW_LIMIT) {
+		if (p->row < PRINT_ROW_LIMIT) {
 			printf("\n");
-			row++;
+			p->row++;
 		} else {
 			printf("\n\nPrint Limit reached!\n");
 
-			print_limit_reached = true;
-			row = 0;
+			p->print_limit_reached = true;
+			p->row = 0;
 
 			return;
 		}
@@ -123,7 +97,7 @@ void print_next_word(char const *word, size_t len)
 	printf("%s" DELIM, word);
 
 	// subtracting 1 for the zero byte
-	col += len + sizeof(DELIM) - 1;
+	p->col += len + sizeof(DELIM) - 1;
 }
 
 bool sanitized(char const *str)

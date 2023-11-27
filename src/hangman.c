@@ -37,6 +37,7 @@ void fork_search(struct tst_tree **trees, char const *pattern,
 	char word[MAX_STRING_SIZE];
 	size_t thread;
 	size_t len = strlen(pattern);
+	struct printer p = { 0 };
 
 	e_pipe(fd);
 
@@ -68,16 +69,14 @@ void fork_search(struct tst_tree **trees, char const *pattern,
 
 	while (read(fd[0], word, len) > 0) {
 		word[len] = '\0';
-		process_word(word, len);
-		print_next_word(word, len);
+		process_word(&p, word, len);
+		print_next_word(&p, word, len);
 	}
 
 	e_close(fd[0]);
 
 	printf("\n\n");
-	print_probability(pattern);
-
-	reset_words();
+	print_probability(&p, pattern);
 }
 
 /**
@@ -263,6 +262,7 @@ int main(int argc, char **argv)
 
 	e_close(fd);
 
+	// should the cache file be saved
 	if (use_cache && (custom_param || !cache_exists)) {
 		fprintf(stderr, "Save cache file...\n\n");
 
@@ -293,7 +293,7 @@ int main(int argc, char **argv)
 	printf("\n");
 
 	// freeing memory, if cache was used, the memory is one contiguous block
-	if (use_cache && cache_exists)
+	if (use_cache && cache_exists && !custom_param)
 		free(*trees);
 	else
 		for (thread = 0; thread < threads; thread++)
