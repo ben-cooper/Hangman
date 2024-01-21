@@ -11,7 +11,7 @@ void *e_malloc(size_t size)
 	void *result = malloc(size);
 
 	if (!result) {
-		fprintf(stderr, "malloc: %zu: %s\n", size, strerror(errno));
+		fprintf(stderr, "malloc: %lu: %s\n", size, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -23,7 +23,7 @@ void *e_realloc(void *ptr, size_t size)
 	void *result = realloc(ptr, size);
 
 	if (!result) {
-		fprintf(stderr, "realloc: %zu: %s\n", size, strerror(errno));
+		fprintf(stderr, "realloc: %lu: %s\n", size, strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 

@@ -2,8 +2,8 @@
 #define TST_H
 
 #include <stddef.h>
-#include <stdbool.h>
 #include <sys/types.h>
+#include "bool.h"
 
 #define SEARCH_BUFFER_SIZE 100
 
@@ -22,9 +22,9 @@ struct tst_cache_header {
  * Structure for a single node in a ternary search tree
  */
 struct tst_node {
-	size_t left;
-	size_t right;
-	size_t middle;
+	unsigned left;
+	unsigned right;
+	unsigned middle;
 	bool is_word;
 	char chr;
 };
@@ -33,9 +33,10 @@ struct tst_node {
  * Structure for a tree comprising many nodes
  */
 struct tst_tree {
-	size_t elements;
-	size_t capacity;
-	struct tst_node nodes[];
+	unsigned elements;
+	unsigned capacity;
+	/* flexible array member */
+	struct tst_node nodes[1];
 };
 
 /**

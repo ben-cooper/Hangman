@@ -1,4 +1,4 @@
-CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c99
+CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c89
 LFLAGS :=
 
 OBJECTS := tst.o common.o word_utilities.o

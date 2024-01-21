@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
@@ -13,13 +12,13 @@ void process_word(struct printer *p, char const *word, size_t len)
 	size_t j;
 	bool letter_bitmap[26] = { false };
 
-	// adding each letter of word
+	/* adding each letter of word */
 	for (i = 0; i < len; i++) {
 		j = word[i] - 'a';
 		letter_bitmap[j] = true;
 	}
 
-	// adding bitmap to total word count
+	/* adding bitmap to total word count */
 	for (i = 0; i < 26; i++)
 		p->letter_count[i] += letter_bitmap[i];
 
@@ -50,10 +49,10 @@ void print_probability(struct printer *p, char const *exceptions)
 		return;
 	}
 
-	printf("Words found: %zu\n\n", p->word_count);
+	printf("Words found: %lu\n\n", p->word_count);
 	printf("Letter probabilities:\n");
 
-	// initializing result
+	/* initializing result */
 	for (i = 0; i < 26; i++) {
 		results[i].letter = 'a' + i;
 		results[i].chance =
@@ -77,7 +76,7 @@ void print_next_word(struct printer *p, char const *word, size_t len)
 	if (p->print_limit_reached == true)
 		return;
 
-	// printing word
+	/* printing word */
 	if (p->col > PRINT_COL_LIMIT) {
 		p->col = 0;
 
@@ -96,7 +95,7 @@ void print_next_word(struct printer *p, char const *word, size_t len)
 
 	printf("%s" DELIM, word);
 
-	// subtracting 1 for the zero byte
+	/* subtracting 1 for the zero byte */
 	p->col += len + sizeof(DELIM) - 1;
 }
 
