@@ -1,5 +1,5 @@
-CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c89
-LFLAGS :=
+CFLAGS := -Wall -Wextra -Werror -Wpedantic --std=c89 -fdata-sections -ffunction-sections
+LFLAGS := -Wl,-gc-sections
 
 OBJECTS := tst.o common.o word_utilities.o
 OBJECTS := $(addprefix obj/, $(OBJECTS))
