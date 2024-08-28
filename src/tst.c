@@ -134,7 +134,7 @@ void tst_save_cache(struct tst_tree **trees, size_t len, int fd)
 	size_t size;
 
 	struct tst_cache_header header;
-	strncpy(header.magic, FILE_MAGIC, sizeof(header.magic));
+	memcpy(header.magic, FILE_MAGIC, sizeof(header.magic));
 	header.trees = len;
 
 	e_write(fd, &header, sizeof(header));
