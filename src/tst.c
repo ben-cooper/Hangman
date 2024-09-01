@@ -1,7 +1,15 @@
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "common.h"
 #include "tst.h"
+#include "bool.h"
+
+static bool is_little_endian(void)
+{
+	unsigned x = 1;
+	return ((char *) &x)[0];
+}
 
 struct tst_tree *tst_init(size_t capacity)
 {
@@ -133,8 +141,11 @@ void tst_save_cache(struct tst_tree **trees, size_t len, int fd)
 	size_t i;
 	size_t size;
 
-	struct tst_cache_header header;
-	memcpy(header.magic, FILE_MAGIC, sizeof(header.magic));
+	struct tst_cache_header header = { 0 };
+	memcpy(header.magic, FILE_MAGIC, FILE_MAGIC_SIZE);
+	header.little_endian = is_little_endian();
+	header.index_width = sizeof(unsigned);
+	header.node_size = sizeof(struct tst_node);
 	header.trees = len;
 
 	e_write(fd, &header, sizeof(header));
@@ -159,8 +170,13 @@ struct tst_tree **tst_load_cache(int fd, size_t *num_trees)
 	len = end_lseek(fd);
 	start_lseek(fd);
 
-	/* reading header */
+	/* checking header */
 	e_read(fd, &header, sizeof(header));
+
+	assert(header.little_endian == is_little_endian());
+	assert(header.index_width == sizeof(unsigned));
+	assert(header.node_size == sizeof(struct tst_node));
+
 	*num_trees = header.trees;
 
 	/* reading rest of file */

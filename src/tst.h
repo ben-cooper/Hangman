@@ -11,11 +11,14 @@
 #define TST_SCALING 2
 
 #define FILE_MAGIC "TSTCACHE"
-#define FILE_MAGIC_SIZE 8
+#define FILE_MAGIC_SIZE sizeof(FILE_MAGIC) - 1
 
 struct tst_cache_header {
 	char magic[FILE_MAGIC_SIZE];
-	size_t trees;
+	unsigned trees : 16;
+	unsigned char index_width;
+	unsigned char node_size;
+	bool little_endian;
 };
 
 /**
@@ -33,8 +36,8 @@ struct tst_node {
  * Structure for a tree comprising many nodes
  */
 struct tst_tree {
-	unsigned elements;
-	unsigned capacity;
+	size_t elements;
+	size_t capacity;
 	/* flexible array member */
 	struct tst_node nodes[1];
 };
